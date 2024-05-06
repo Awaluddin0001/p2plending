@@ -42,9 +42,38 @@ export default function RegisterLayout() {
         options={stackScreen(`${tagRegis}Verifikasi Email`)}
       />
       <Stack.Screen
+        name="[id_ub]/pinRegistration"
+        options={stackScreen(`${tagRegis}Buat Pin Baru`)}
+      />
+      <Stack.Screen
+        name="[id_ub]/pinVerification"
+        options={stackScreen(`${tagRegis}Verifikasi Pin`)}
+      />
+      <Stack.Screen
         name="[id_ub]/dataPribadi"
         options={stackScreen(`${tagRegis}Lengkapi Data Pribadi`)}
       />
+      <Stack.Screen
+        name="[id_ub]/dataUsaha"
+        options={stackScreen(`${tagRegis}Lengkapi Data Usaha`)}
+      />
+      <Stack.Screen
+        name="[id_ub]/dataDarurat"
+        options={stackScreen(`${tagRegis}Lengkapi Data Darurat`)}
+      />
+      <Stack.Screen
+        name="[id_ub]/fotoDalamToko"
+        options={stackScreen(`${tagRegis}Foto Dalam Toko`)}
+      />
+      <Stack.Screen
+        name="[id_ub]/fotoLuarToko"
+        options={stackScreen(`${tagRegis}Foto Luar Toko`)}
+      />
+      <Stack.Screen
+        name="[id_ub]/tandaTangan"
+        options={stackScreen(`${tagRegis}Tanda Tangan`)}
+      />
+      <Stack.Screen name="[id_ub]/registrasiComplete" options={hideStack} />
     </Stack>
   );
 }

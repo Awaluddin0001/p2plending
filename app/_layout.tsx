@@ -65,17 +65,17 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(loginBorrower)" options={{ headerShown: false }} />
-        <Stack.Screen name="(appBorrower)" options={{ headerShown: false }} />
         <Stack.Screen
           name="(registerBorrower)"
           options={{ headerShown: false }}
         />
+        {/* <Stack.Screen name="(appBorrower)" options={{ headerShown: false }} /> */}
         <Stack.Screen name="(loginLender)" options={{ headerShown: false }} />
-        <Stack.Screen name="(appLender)" options={{ headerShown: false }} />
         <Stack.Screen
           name="(registerLender)"
           options={{ headerShown: false }}
         />
+        {/* <Stack.Screen name="(appLender)" options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="modal" options={{ presentation: "modal" }} /> */}
       </Stack>
     </ThemeProvider>
