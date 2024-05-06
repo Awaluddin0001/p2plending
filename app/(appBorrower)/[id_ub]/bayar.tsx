@@ -210,12 +210,12 @@ const styles = StyleSheet.create({
     height: 60,
   },
   nameDashboard: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 16,
     color: "#fff",
   },
   usahaDashboard: {
-    fontFamily: "Inter_300Light",
+    fontFamily: "InterLight",
     color: "#fff",
     marginTop: 5,
   },
@@ -241,11 +241,11 @@ const styles = StyleSheet.create({
     height: "10%",
   },
   textBold: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 18,
   },
   textRegular: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     fontSize: 12,
   },
   bniCardPay: {
@@ -255,11 +255,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bnitextBold: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     fontSize: 16,
   },
   bnitextRegular: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     fontSize: 10,
   },
   scrollPay: {
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   headlineBayar: {
     color: color.primary,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 18,
     borderBottomColor: color.primary,
     borderBottomWidth: 1,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   boldBayar: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
   },
   textInstruction: {
     flexDirection: "row",

@@ -123,15 +123,15 @@ const styles = StyleSheet.create({
     height: 60,
   },
   nameDashboard: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 16,
   },
   usahaDashboard: {
-    fontFamily: "Inter_300Light",
+    fontFamily: "InterLight",
     marginTop: 5,
   },
   tagHead: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 16,
     marginTop: 15,
 

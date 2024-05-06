@@ -312,7 +312,7 @@ export default function Pinjam() {
       </View>
       <Text
         style={{
-          fontFamily: "Inter_500Medium",
+          fontFamily: "InterMedium",
           alignSelf: "flex-start",
           marginLeft: 20,
           marginBottom: 10,
@@ -431,7 +431,7 @@ export default function Pinjam() {
               >
                 <Text
                   style={{
-                    fontFamily: "Inter_700Bold",
+                    fontFamily: "InterBold",
                     color: color.secondary,
                     fontSize: 16,
                   }}
@@ -447,7 +447,7 @@ export default function Pinjam() {
               >
                 <Text
                   style={{
-                    fontFamily: "Inter_700Bold",
+                    fontFamily: "InterBold",
                     color: color.primary,
                     fontSize: 16,
                   }}
@@ -616,12 +616,12 @@ const styles = StyleSheet.create({
     height: 60,
   },
   nameDashboard: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 16,
     color: "#fff",
   },
   usahaDashboard: {
-    fontFamily: "Inter_300Light",
+    fontFamily: "InterLight",
     color: "#fff",
     marginTop: 5,
   },
@@ -645,11 +645,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   danaHead: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     fontSize: 10,
   },
   danaValueHead: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     marginTop: 10,
     fontSize: 12,
   },
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   amountText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     marginTop: 10,
     fontSize: 18,
   },
@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     flexDirection: "column",
-    fontFamily: "Inter_700Bold",
+    fontFamily: "InterBold",
     gap: 10,
     alignItems: "flex-start",
     justifyContent: "flex-start",

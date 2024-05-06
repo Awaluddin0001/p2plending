@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   normalText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     textAlign: "center",
   },
   viewImage: {

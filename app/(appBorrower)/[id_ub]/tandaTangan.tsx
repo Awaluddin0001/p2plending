@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
 
   normalText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     textAlign: "center",
     marginTop: 40,
     marginBottom: 50,

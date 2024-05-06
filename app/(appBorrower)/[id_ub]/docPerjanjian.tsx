@@ -47,19 +47,19 @@ const styles = StyleSheet.create({
     width: "90%",
   },
   normalText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     textAlign: "left",
     width: "100%",
   },
   headerText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     fontSize: 16,
     textAlign: "left",
     width: "20%",
     color: `${color.primary}`,
   },
   mainheaderText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     fontSize: 16,
     textAlign: "left",
     width: "100%",

@@ -14,9 +14,10 @@ import MyButton from "@/components/util/myButton";
 import toRupiah from "@/components/util/toRupiah";
 import UserImage from "@/components/util/userImage";
 import { color } from "@/constants/Colors";
-// import { useMyContext } from "../../../../src/components/util/LoginContext";
-// import { getReApiLrs } from "../../../../src/components/util/LenderService";
-// import { getEB } from "../../../../src/components/util/EventBus";
+
+//   import { useMyContext } from "../../../../src/components/util/LoginContext";
+//   import { getReApiLrs } from "../../../../src/components/util/LenderService";
+//   import { getEB } from "../../../../src/components/util/EventBus";
 
 export default function Home() {
   const router = useRouter();
@@ -116,8 +117,8 @@ export default function Home() {
         />
       </View>
       <Text style={styles.infoDashboard}>History</Text>
-      {/* <ScrollView style={styles.listAngsuran}>
-        {loading ? (
+      <ScrollView style={styles.listAngsuran}>
+        {/* {loading ? (
           <ActivityIndicator size="large" color={color.primary} />
         ) : listBorrower?.length > 0 ? (
           listBorrower?.map((val) => (
@@ -140,8 +141,8 @@ export default function Home() {
           ))
         ) : (
           <Text>Anda Belum Punya Peminjam</Text>
-        )}
-      </ScrollView> */}
+        )} */}
+      </ScrollView>
     </View>
   );
 }

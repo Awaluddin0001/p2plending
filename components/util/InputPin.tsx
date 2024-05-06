@@ -151,19 +151,19 @@ const styles = StyleSheet.create({
   btnText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     textAlign: "center",
   },
   headertext: {
     color: `${color.primary}`,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     marginVertical: 11,
   },
   boldText: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
   },
   normalText: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: "InterRegular",
     marginVertical: 11,
     color: "#888",
   },
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     color: color.secondary,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     width: 30,
   },
 });

@@ -23,7 +23,7 @@ export default function AppLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="home"
+        name="[id_ub]/home"
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => tabIconStylee(focused, "home"),
@@ -33,7 +33,7 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen
-        name="pinjam"
+        name="[id_ub]/pinjam"
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => tabIconStylee(focused, "money"),
@@ -43,7 +43,7 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen
-        name="setting"
+        name="[id_ub]/setting"
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => tabIconStylee(focused, "gear"),
@@ -53,20 +53,23 @@ export default function AppLayout() {
       />
 
       <Tabs.Screen
-        name="tandaTangan"
+        name="[id_ub]/tandaTangan"
         options={{ headerShown: false, href: null }}
       />
       <Tabs.Screen
-        name="faceBiometric"
+        name="[id_ub]/faceBiometric"
         options={{ headerShown: false, href: null }}
       />
       <Tabs.Screen
-        name="ktpVerif"
+        name="[id_ub]/ktpVerif"
         options={{ headerShown: false, href: null }}
       />
-      <Tabs.Screen name="bayar" options={{ headerShown: false, href: null }} />
       <Tabs.Screen
-        name="docPerjanjian"
+        name="[id_ub]/bayar"
+        options={{ headerShown: false, href: null }}
+      />
+      <Tabs.Screen
+        name="[id_ub]/docPerjanjian"
         options={{ headerShown: false, href: null }}
       />
     </Tabs>

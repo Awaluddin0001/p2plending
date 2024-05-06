@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   headerText: {
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "InterSemiBold",
     color: `${color.primary}`,
     marginVertical: 10,
     textAlign: "center",

@@ -346,7 +346,7 @@ const RegisterPlace: React.FC<RegisterPlaceProps> = ({
 
 const styles = StyleSheet.create({
   labelText: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: "InterMedium",
     fontSize: 14,
     textAlign: "left",
     width: "100%",
