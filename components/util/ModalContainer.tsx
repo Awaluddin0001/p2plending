@@ -1,8 +1,10 @@
-import { terbilang } from "./angkaMenjadiTerbilang";
 import { DateTime } from "luxon";
 import { View, StyleSheet, Text, Image } from "react-native";
-import toRupiah from "@/components/util/toRupiah";
+
+import { terbilang } from "./angkaMenjadiTerbilang";
 import { bulanTerbilang } from "./bulanTerbilang";
+
+import toRupiah from "@/components/util/toRupiah";
 
 export default function ModalContainer({
   sign,
@@ -434,35 +436,35 @@ export default function ModalContainer({
         Jumlah Pinjaman tersebut diatas akan dikurangi dengan biaya layanan
         sebesar{" "}
         {toRupiah(
-          tenor == 61
+          tenor === 61
             ? amount * 0.1
-            : tenor == 75
+            : tenor === 75
               ? amount * 0.125
               : amount * 0.15,
           { floatingPoint: 0 }
         )}
         ,- (
         {terbilang(
-          tenor == 61
+          tenor === 61
             ? amount * 0.1
-            : tenor == 75
+            : tenor === 75
               ? amount * 0.125
               : amount * 0.15
         )}{" "}
         rupiah) sehingga Peminjam akan menerima sebesar{" "}
         {toRupiah(
-          tenor == 61
+          tenor === 61
             ? amount - amount * 0.1
-            : tenor == 75
+            : tenor === 75
               ? amount - amount * 0.125
               : amount - amount * 0.15,
           { floatingPoint: 0 }
         )}
         ,- (
         {terbilang(
-          tenor == 61
+          tenor === 61
             ? amount - amount * 0.1
-            : tenor == 75
+            : tenor === 75
               ? amount - amount * 0.125
               : amount - amount * 0.15
         )}{" "}
@@ -475,10 +477,10 @@ export default function ModalContainer({
         Jumlah Pinjaman yang diberikan sebesar{" "}
         {toRupiah(amount, { floatingPoint: 0 })},- ({terbilang(amount)} rupiah)
         akan dikenakan Suku Bunga Pinjaman sebesar{" "}
-        {tenor == 61 ? "0.15%" : tenor == 75 ? "0.13%" : "0.1%"} ({" "}
-        {tenor == 61
+        {tenor === 61 ? "0.15%" : tenor === 75 ? "0.13%" : "0.1%"} ({" "}
+        {tenor === 61
           ? "Nol koma Lima Belas Persen"
-          : tenor == 75
+          : tenor === 75
             ? "Nol koma Tiga Belas Persen"
             : "Nol koma Satu Persen"}
         Nol koma Satu Persen) per hari. Suku Bunga Pinjaman dihitung berdasarkan
@@ -503,10 +505,10 @@ export default function ModalContainer({
       </Text>
       <Text style={styles.textModaljus}>
         a. Untuk jangka waktu {tenor} ({terbilang(tenor)}) hari, dilakukan
-        pembayaran dengan mengangsur sebanyak {tenor == 61 ? "2" : "3"} bulan,
+        pembayaran dengan mengangsur sebanyak {tenor === 61 ? "2" : "3"} bulan,
         dengan rincian :
       </Text>
-      {tenor == 61 ? (
+      {tenor === 61 ? (
         <>
           <Text style={styles.textModalls}>
             • Angsuran I (Pokok dan Bunga) : 30 (tiga puluh) hari{" "}
@@ -519,7 +521,7 @@ export default function ModalContainer({
             {terbilang(angsuran2)} rupiah)
           </Text>
         </>
-      ) : tenor == 75 ? (
+      ) : tenor === 75 ? (
         <>
           <Text style={styles.textModalls}>
             • Angsuran I (Pokok dan Bunga) : 30 (tiga puluh) hari{" "}
@@ -951,15 +953,15 @@ export default function ModalContainer({
       </Text>
       <Text style={styles.textModaljus}>
         Jangka waktu {tenor} ({terbilang(tenor)}) hari dikenakan bunga sebesar{" "}
-        {tenor == 61 ? "0.15%" : tenor == 75 ? "0.13%" : "0.1%"} ({" "}
-        {tenor == 61
+        {tenor === 61 ? "0.15%" : tenor === 75 ? "0.13%" : "0.1%"} ({" "}
+        {tenor === 61
           ? "Nol koma Lima Belas Persen"
-          : tenor == 75
+          : tenor === 75
             ? "Nol koma Tiga Belas Persen"
             : "Nol koma Satu Persen"}{" "}
         per hari:{" "}
       </Text>
-      {tenor == 61 ? (
+      {tenor === 61 ? (
         <>
           <Text style={styles.textModalls}>
             • Angsuran I : ({tenor} hari x 0,15 %) = 9,15 % (bunga) dengan
@@ -974,7 +976,7 @@ export default function ModalContainer({
             {toRupiah(amount / 2)} ={toRupiah(angsuran2)}
           </Text>
         </>
-      ) : tenor == 75 ? (
+      ) : tenor === 75 ? (
         <>
           {" "}
           <Text style={styles.textModalls}>
