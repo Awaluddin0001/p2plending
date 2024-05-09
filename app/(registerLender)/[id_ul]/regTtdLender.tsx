@@ -1,34 +1,56 @@
-// import { SketchCanvas } from "@wwimmo/react-native-sketch-canvas";
 import CryptoJS from "crypto-js";
 import * as FileSystem from "expo-file-system";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Image, ActivityIndicator } from "react-native";
-import SignatureView from "react-native-signature-canvas";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import Signature from "react-native-signature-canvas";
 
 import MyButton from "@/components/util/myButton";
+import { useSignatureUploader } from "@/components/util/uploadImage";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
+import { appDimension } from "@/constants/Sizes";
 
-// import { uploadSign } from "../../../../src/components/util/uploadImage";
-// import { postApiBs } from "../../../../src/components/util/BorrowerService";
-
-export default function TandaTangan() {
+export default function RegTtdLender() {
   const [signature, setSign] = useState("");
   const [isSign, setIssign] = useState(false);
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams();
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [isUpload, setIsupload] = useState(false);
-  const [loadingUpload, setLoadingUpload] = useState(false);
   const [image, setImage] = useState("");
+  const { id_ul } = useLocalSearchParams();
 
-  // const encrypFilename = CryptoJS.SHA1(
-  //   id_ub,
-  //   process.env.EXPO_PUBLIC_SECRET_KEY
-  // ).toString();
+  const {
+    isUpload: isImageUploaded,
+    loading: imageLoading,
+    uploadSign,
+  } = useSignatureUploader();
+
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
+
+  const style = `.m-signature-pad--footer
+  .button {
+    background-color: ${color.primary};
+    color: #FFF;
+  }
+  body,html {
+    width:  ${appDimension.widthScreen}px; height: ${appDimension.heightScreen * 0.6}px;}`;
 
   const handleOK = async (sign: string) => {
+    const encrypFilename = id_ul
+      ? CryptoJS.SHA1(id_ul as string, {
+          key: process.env.EXPO_PUBLIC_SECRET_KEY,
+        }).toString()
+      : "";
     try {
       const path = FileSystem.cacheDirectory + "sign.png";
       await FileSystem.writeAsStringAsync(
@@ -38,15 +60,15 @@ export default function TandaTangan() {
       );
       const fileInfo = await FileSystem.getInfoAsync(path);
       setSign(fileInfo.uri);
+      setImage(`${encrypFilename}.png`);
       setIssign(true);
-      // uploadSign(
-      //   fileInfo.uri,
-      //   "/api/image/signborrower",
-      //   encrypFilename,
-      //   setIsupload,
-      //   setLoadingUpload
-      // );
-      // setImage(`${encrypFilename}.png`);
+      const ImageData = {
+        uri: fileInfo.uri,
+        name: `${encrypFilename}.jpg`,
+        type: "image/jpeg",
+      };
+
+      uploadSign(ImageData, "/signborrower");
     } catch (error) {
       console.error(error);
     }
@@ -56,51 +78,50 @@ export default function TandaTangan() {
     setImage(``);
   };
 
-  const style = `.m-signature-pad--footer
-    .button {
-      background-color: ${color.primary};
-      color: #FFF;
-    }
-    .m-signature-pad {
-      height: 300px;
-    }
-    .m-signature-pad--body {
-      border: 2px solid  ${color.primary};
-      height: 300px
-    }`;
-
-  const routeHandler = () => {
+  const routeHandler = async () => {
     const body = {
-      id_ub: id_ub,
+      id_ul,
       sign: image,
     };
-    // postApiBs(body, "/api/borrower/signUser", setData, setLoading);
-    // router.push(
-    //   `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/regComplete`
-    // );
+
+    await fetchDataApi1(
+      "post",
+      `${process.env.EXPO_PUBLIC_BASE_URL}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+      "/signUser",
+      body
+    );
   };
 
-  // useEffect(() => {
-  //   if (data.message == "success") {
-  //     router.push(
-  //       `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/regComplete`
-  //     );
-  //   }
-  // }, [data, isUpload]);
+  useEffect(() => {
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "success") {
+          router.push(`/registrasiCompleteLender`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert(
+            "gagal",
+            "ada maintenance pada server coba lagi beberapa saat kemudian"
+          );
+        }
+      }
+    }
+  }, [responseApi1, id_ul, router]);
 
   return (
     <View style={styles.wraperSection}>
-      {loading ? (
+      {loadingApi1 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
           <Text style={styles.normalText}>Silahkan Tanda Tangan</Text>
           <View style={styles.preview}>
-            {loadingUpload ? (
+            {imageLoading ? (
               <ActivityIndicator size="large" color={color.primary} />
-            ) : isSign ? (
+            ) : isImageUploaded ? (
               <Image
-                resizeMode={"contain"}
+                resizeMode="contain"
                 style={styles.myImage}
                 source={{ uri: signature }}
               />
@@ -108,7 +129,7 @@ export default function TandaTangan() {
               <Text>Belum ada tanda tangan</Text>
             )}
           </View>
-          {loadingUpload ? (
+          {imageLoading ? (
             <ActivityIndicator size="large" color={color.primary} />
           ) : isSign ? (
             <View style={styles.thisBtn}>
@@ -120,7 +141,7 @@ export default function TandaTangan() {
               />
             </View>
           ) : (
-            <SignatureView
+            <Signature
               onOK={handleOK}
               onEmpty={handleEmpty}
               descriptionText="Tanda Tangan"
@@ -138,28 +159,27 @@ export default function TandaTangan() {
 const styles = StyleSheet.create({
   wraperSection: {
     flex: 1,
+    height: appDimension.heightScreen,
     marginHorizontal: "auto",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
   },
-
   normalText: {
     fontFamily: "InterRegular",
     textAlign: "center",
-    marginTop: 40,
-    marginBottom: 50,
+    marginTop: 20,
+    marginBottom: 20,
   },
   container: {
     flex: 1,
   },
   preview: {
     width: "100%",
-    height: 200,
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 10,
   },
   thisBtn: {
     marginBottom: 80,
@@ -168,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   myImage: {
-    width: "100%",
-    height: "100%",
+    width: appDimension.widthScreen,
+    height: appDimension.heightScreen * 0.75,
   },
 });

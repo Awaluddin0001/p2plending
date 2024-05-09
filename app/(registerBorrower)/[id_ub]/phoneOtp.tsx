@@ -13,21 +13,32 @@ import {
 
 import Countdown from "@/components/util/countDownFive";
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
 export default function PhoneOtp() {
-  const [valueOTP, setValueOTP] = useState(" ");
-  const [phone, setPhone] = useState("");
+  const router = useRouter();
+  const [valueOTP, setValueOTP] = useState("");
   const [code, setCode] = useState("");
   const otpRef = useRef<TextInput>(null);
   const { id_ub } = useLocalSearchParams();
 
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({});
   const [isDone, setIsdone] = useState(false);
   const [isResend, setIsresend] = useState(true);
   const initialTime = 5 * 60; // 5 minutes in seconds
   const [time, setTime] = useState(initialTime);
+
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
+
+  const {
+    loading: loadingApi2,
+    resp: responseApi2,
+    fetchData: fetchDataApi2,
+  } = useApi<any>();
 
   function convertToFixedLengthArray(str: string) {
     const fixedLength = 6;
@@ -36,44 +47,7 @@ export default function PhoneOtp() {
     return arrayFromString;
   }
 
-  let otpLength = convertToFixedLengthArray(valueOTP);
-
-  const router = useRouter();
-
-  const routeHandler = () => {
-    // if (code) {
-    //   const body = {
-    //     id_ub: id_ub,
-    //     otp: code,
-    //   };
-
-    //   getApiBs(body, "/api/borrower/otpPhone", setData, setLoading);
-    // }
-    router.push("/(registerBorrower)/PAB10001/emailRegistration");
-  };
-
-  //   useEffect(() => {
-  //     getApiBs(
-  //       { id_ub: id_ub },
-  //       "/api/borrower/numberPhone",
-  //       setData,
-  //       setLoading
-  //     );
-  //   }, []);
-
-  //   const resendotp = async () => {
-  //     const res = await getReApiBs(
-  //       { id_ub: id_ub },
-  //       "/api/borrower/resendOtpphone",
-  //       setLoading
-  //     );
-
-  //     if (res.message == "send") {
-  //       Alert.alert("Resend OTP", "Kode OTP telah dikirim ulang");
-  //       setIsresend(false);
-  //       setTime(initialTime);
-  //     }
-  //   };
+  const otpLength = convertToFixedLengthArray(valueOTP);
 
   const inputOTP = (e: string) => {
     setValueOTP(e);
@@ -85,6 +59,11 @@ export default function PhoneOtp() {
     nativeEvent: { text: string };
   }) => {
     setCode(text);
+    if (text.length === 6) {
+      setIsdone(true);
+    } else {
+      setIsdone(false);
+    }
   };
 
   const userPressOTP = () => {
@@ -93,58 +72,78 @@ export default function PhoneOtp() {
     }
   };
 
-  //   useEffect(() => {
-  //     const dataLength = Object.keys(data).length;
-  //     if (dataLength > 0 && !phone) {
-  //       setPhone(data.data.phone);
-  //     }
-  //     if (valueOTP) {
-  //       otpLength = convertToFixedLengthArray(valueOTP);
-  //     }
-  //     if (code.length == 6) {
-  //       setIsdone(true);
-  //     } else {
-  //       setIsdone(false);
-  //     }
-  //     if (data.message == "auth") {
-  //       router.push(
-  //         `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/lengkapiDataAkun`
-  //       );
-  //     }
-  //     if (data.message == "wait") {
-  //       Alert.alert(
-  //         "Limit Input",
-  //         "Anda telah melewat batas percobaan, tunggu dalam 1x24 jam",
-  //         [
-  //           {
-  //             onPress: (onPress = () => {
-  //               setData((data.message = ""));
-  //             }),
-  //           },
-  //         ]
-  //       );
-  //     }
-  //     if (data.message == "wrong") {
-  //       Alert.alert("Wrong OTP", "Angka yang anda masukkan tidak sesuai", [
-  //         {
-  //           onPress: (onPress = () => {
-  //             setData((data.message = ""));
-  //           }),
-  //         },
-  //       ]);
-  //     }
-  //   }, [valueOTP, code, data]);
+  const resendotp = async () => {
+    if (time === 0) {
+      await fetchDataApi2(
+        "get",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        "/resendOtpphone",
+        undefined,
+        { id_ub }
+      );
+    }
+  };
+
+  const routeHandler = async () => {
+    if (code) {
+      const param = {
+        id_ub,
+        otp: code,
+      };
+
+      await fetchDataApi1(
+        "get",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        "/otpPhone",
+        undefined,
+        param
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "wrong") {
+          responseApi1.message = "";
+          Alert.alert("Salah", "Kode yang anda masukkan tidak sesuai");
+        } else if (responseApi1.message === "auth") {
+          router.push(`/${id_ub}/emailRegistration`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert(
+            "error",
+            "Server dalam keadaan Maintenance, balik lagi nanti"
+          );
+        }
+      }
+    }
+    if (responseApi2) {
+      if (responseApi2.message) {
+        if (responseApi2.message === "update") {
+          setTime(initialTime);
+          setIsresend(false);
+          responseApi2.message = "";
+          Alert.alert("Terkirim", "kode yang baru telah terkirim");
+        } else if (responseApi2.message === "failed") {
+          Alert.alert("Gagal Terkirim", "kode yang baru gagal terkirim");
+        }
+      }
+    }
+  }, [responseApi1, responseApi2, router, initialTime, id_ub]);
 
   return (
     <View style={styles.wraperSendOtp}>
-      {loading ? (
+      {loadingApi1 || loadingApi2 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
           <Image source={require("@/assets/images/terimaOtp.png")} />
           <Text style={styles.headertext}>Verifikasi OTP</Text>
           <Text style={styles.normalText}>
-            Code OTP telah terkirim ke +62{phone}
+            Masukkan Kode OTP yang anda terima melalui sms
           </Text>
           <Pressable
             onPress={userPressOTP}
@@ -168,7 +167,7 @@ export default function PhoneOtp() {
               keyboardType="numeric"
               inputMode="numeric"
               onChangeText={inputOTP}
-              onEndEditing={getCode}
+              onChange={getCode}
               ref={otpRef}
             />
           </View>
@@ -183,9 +182,7 @@ export default function PhoneOtp() {
           >
             <Text style={styles.normalText}>Tidak Menerima OTP?</Text>
             {isResend && (
-              <Pressable
-              // onPress={() => resendotp()}
-              >
+              <Pressable onPress={() => resendotp()}>
                 <Text style={{ color: color.primary }}>RESEND</Text>
               </Pressable>
             )}
@@ -196,7 +193,7 @@ export default function PhoneOtp() {
             btnWidth="60%"
             onPress={routeHandler}
             btnText="Verifikasi"
-            // btnDisable={!isDone}
+            btnDisable={!isDone}
           />
         </>
       )}

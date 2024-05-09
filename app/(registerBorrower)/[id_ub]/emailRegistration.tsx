@@ -11,40 +11,21 @@ import {
 } from "react-native";
 
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
-// import { postApiBs } from "@/components/util/BorrowerService";
-// import { postEB } from "@/components/util/EventBus";
 
 export default function EmailRegistration() {
   const router = useRouter();
   const [isDone, setIsdone] = useState(false);
   const [email, setEmail] = useState("");
-  const [isEmail, setIsEmail] = useState(true);
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
-  const [isPass, setIspass] = useState(true);
   const { id_ub } = useLocalSearchParams();
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
-
-  const routeHandler = async () => {
-    const body = {
-      id_ub: id_ub,
-      email: email,
-      password: password,
-    };
-
-    const davs = {
-      id_ub: id_ub,
-      email: email,
-      pas: password,
-    };
-    // await postEB(davs, "/api/eventbus/storedavest", setLoading);
-    // postApiBs(body, "/api/borrower/registerEmail", setData, setLoading);
-    // // router.push(
-    //   `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/activateEmail`
-    // );
-  };
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
 
   const getEmail = ({
     nativeEvent: { text },
@@ -52,20 +33,16 @@ export default function EmailRegistration() {
     nativeEvent: { text: string };
   }) => {
     setEmail(text);
-    if (!email) {
-      setIsEmail(false);
-    }
-    validateEmail(text);
   };
 
-  const validateEmail = (val: string) => {
+  const validateEmail = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValid = emailRegex.test(val);
+    const isValid = emailRegex.test(email);
     if (isValid) {
-      setIsEmail(true);
+      return true;
     } else {
-      setIsEmail(false);
       Alert.alert("Format Email Salah", "Masukkan Format email yang benar");
+      return false;
     }
   };
 
@@ -82,46 +59,68 @@ export default function EmailRegistration() {
     nativeEvent: { text: string };
   }) => {
     setRePassword(text);
-    setIspass(false);
   };
 
   const validatePass = () => {
     if (password && rePassword) {
-      if (password == rePassword) {
-        setIspass(true);
+      if (password === rePassword) {
+        return true;
       } else {
-        setIspass(false);
         Alert.alert("Password tidak sesuai", "Sesuaikan kembali password anda");
+        return false;
       }
     }
   };
 
   const validForm = () => {
-    if (email && isEmail && password && rePassword && isPass) {
+    if (email && password && rePassword) {
       setIsdone(true);
     } else {
       setIsdone(false);
     }
   };
 
-  // useEffect(() => {
-  //   const dataLength = Object.keys(data).length;
-  //   validForm();
-  //   validatePass();
-  //   if (dataLength > 0) {
-  //     data.message == "success" &&
-  //       router.push(
-  //         `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/activateEmail`
-  //       );
+  const routeHandler = async () => {
+    const body = {
+      id_ub,
+      email,
+      password,
+    };
 
-  //     data.message != "success" &&
-  //       Alert.alert("Failed Resgister", "Some error happend");
-  //   }
-  // }, [isEmail, email, password, rePassword, isPass, isEmail, data, isDone]);
+    const validEmail = validateEmail();
+    const validPass = validatePass();
+
+    if (validEmail && validPass) {
+      await fetchDataApi1(
+        "post",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_I1}`,
+        "/storedavest",
+        body
+      );
+    }
+  };
+
+  useEffect(() => {
+    validForm();
+
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "success") {
+          router.push(`/${id_ub}/emailOtp`);
+        } else if (responseApi1.message === "doeku") {
+          router.push(`/${id_ub}/emailOtp`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert("gagal", "email anda telah terdaftar");
+        }
+      }
+    }
+  }, [responseApi1, router, id_ub, email, password, rePassword]);
 
   return (
     <View style={styles.wraperSection}>
-      {loading ? (
+      {loadingApi1 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
@@ -139,23 +138,23 @@ export default function EmailRegistration() {
               keyboardType="default"
               inputMode="text"
               style={styles.inputStyle}
-              onEndEditing={getEmail}
+              onChange={getEmail}
             />
             <Text style={styles.labelText}>Password*</Text>
             <TextInput
               keyboardType="default"
               inputMode="text"
               style={styles.inputStyle}
-              secureTextEntry={true}
-              onEndEditing={getPassword}
+              secureTextEntry
+              onChange={getPassword}
             />
             <Text style={styles.labelText}>Re-type Password*</Text>
             <TextInput
               keyboardType="default"
               inputMode="text"
               style={styles.inputStyle}
-              secureTextEntry={true}
-              onEndEditing={getrepassword}
+              secureTextEntry
+              onChange={getrepassword}
             />
           </ScrollView>
           <MyButton

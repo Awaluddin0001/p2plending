@@ -62,7 +62,10 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+      <Stack
+        screenOptions={{ headerShown: false, statusBarColor: "#00B0B0" }}
+        initialRouteName="index"
+      >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(loginBorrower)" options={{ headerShown: false }} />
         <Stack.Screen

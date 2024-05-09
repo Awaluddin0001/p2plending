@@ -1,24 +1,21 @@
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StyleSheet, Text, View, Image } from "react-native";
 
 import MyButton from "@/components/util/myButton";
 import { color } from "@/constants/Colors";
 
-export default function RegistrasiComplete() {
+export default function WaitingApprove() {
   const router = useRouter();
 
   const routerLogin = () => {
-    router.push(`/(loginBorrower)`);
+    router.push(`/(loginLender)`);
   };
 
   return (
     <View style={styles.container}>
-      <Image source={require("@/assets/images/checklist.png")} />
       <Text style={styles.headerText}>Selamat anda telah terdaftar</Text>
       <Text style={styles.normalText}>
-        Data anda telah kami terima, untuk pengajuan pinjaman pertama siapkan
-        ktp untuk verifikasi pengajuan, sekarang anda dapat login sebagai
-        penerima dana
+        data dan dokumen anda dalam tahap verifikasi
       </Text>
       <MyButton
         btnText="Login"

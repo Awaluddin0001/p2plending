@@ -4,40 +4,44 @@ import { useState } from "react";
 
 interface ApiResponse<T> {
   loading: boolean;
-  response: T | null;
+  resp: T | null;
   fetchData: (
     method: string,
     url: string,
+    service: string,
     endpoint: string,
     data?: any,
-    params?: any
+    params?: any,
+    headers?: any
   ) => Promise<void>;
 }
 
 const useApi = <T>(): ApiResponse<T> => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<T | null>(null);
+  const [resp, setResp] = useState<T | null>(null);
 
   const fetchData = async (
     method: string,
     url: string,
+    service: string,
     endpoint: string,
     data?: any,
-    params?: any /* eslint-disable-next-line */
+    params?: any,
+    headers?: any /* eslint-disable-next-line */
   ) => {
     setLoading(true);
     try {
-      const fullUrl = url + endpoint;
+      const fullUrl = url + service + endpoint;
       let result: AxiosResponse<T>;
       switch (method) {
         case "get":
-          result = await axios.get<T>(fullUrl, { params });
+          result = await axios.get<T>(fullUrl, { params, headers });
           break;
         case "post":
-          result = await axios.post<T>(fullUrl, data);
+          result = await axios.post<T>(fullUrl, data, { headers });
           break;
         case "put":
-          result = await axios.put<T>(fullUrl, data);
+          result = await axios.put<T>(fullUrl, data, { headers });
           break;
         case "delete":
           result = await axios.delete<T>(fullUrl);
@@ -45,15 +49,15 @@ const useApi = <T>(): ApiResponse<T> => {
         default:
           throw new Error(`Unsupported HTTP method: ${method}`);
       }
-      setResponse(result.data);
+      setResp(result.data);
     } catch (error) {
       console.error("API Error:", error);
-      setResponse(null);
+      setResp(null);
     }
     setLoading(false);
   };
 
-  return { loading, response, fetchData };
+  return { loading, resp, fetchData };
 };
 
 export default useApi;

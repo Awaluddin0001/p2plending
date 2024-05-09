@@ -1,8 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link, useRouter } from "expo-router";
+import { Link, useRouter, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Text,
   StyleSheet,
@@ -12,15 +11,32 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { color } from "@/constants/Colors";
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
+import { color } from "@/constants/Colors";
+
+type inputType = {
+  nativeEvent: { text: string };
+};
 
 export default function Index() {
   const [isVisible, setIsVisible] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  useFocusEffect(
+    useCallback(() => {
+      const session = async () => {
+        const token = await SecureStore.getItemAsync("token");
+        const id_ub = await SecureStore.getItemAsync("id_ub");
+
+        if (token && id_ub) {
+          router.replace(`/(appBorrower)/${id_ub}/home`);
+        }
+      };
+      session();
+    }, [])
+  );
   //   const contextData = useMyContext();
   //   useEffect(() => {
   //     async function redirect() {
@@ -34,30 +50,69 @@ export default function Index() {
   //     redirect();
   //   }, []);
 
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
+
   const passVisibleHandler = () => {
     setIsVisible((is) => !is);
   };
-  const getUsername = (text: any) => {
+  const getUsername = ({ nativeEvent: { text } }: inputType) => {
     setUsername(text);
   };
-  const getPassword = (text: any) => {
+  const getPassword = ({ nativeEvent: { text } }: inputType) => {
     setPassword(text);
   };
 
-  //   const routeHandler = async () => {
-  //     const login = await loginState(username, password, setLoading, "lender");
-  //     setStorageItemAsync("jwt", login.token);
-  //     const data = await getJwt("lender");
-  //     if (data) {
-  //       router.replace(
-  //         `${process.env.EXPO_PUBLIC_ROUTE_LENDER_DASH}/${data.id_ul}/home`
-  //       );
-  //     }
-  //   };
+  const routeHandler = async () => {
+    const body = {
+      username,
+      password,
+    };
+
+    await fetchDataApi1(
+      "post",
+      `${process.env.EXPO_PUBLIC_BASE_URL}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+      "/login",
+      body
+    );
+    // await AsyncStorage.setItem("token")
+    // const data = await getJwt("lender");
+    // if (data) {
+    //   router.replace(
+    //     `${process.env.EXPO_PUBLIC_ROUTE_LENDER_DASH}/${data.id_ul}/home`
+    //   );
+    // }
+  };
+
+  useEffect(() => {
+    const store = async () => {
+      await SecureStore.setItemAsync("email", responseApi1.tokenData.email);
+      await SecureStore.setItemAsync("token", responseApi1.token);
+      await SecureStore.setItemAsync(
+        "business",
+        responseApi1.tokenData.business
+      );
+      await SecureStore.setItemAsync("id_ub", responseApi1.tokenData.id_ub);
+      await SecureStore.setItemAsync("name", responseApi1.tokenData.name);
+      await SecureStore.setItemAsync("phone", responseApi1.tokenData.phone);
+      await SecureStore.setItemAsync("gender", responseApi1.tokenData.gender);
+      await SecureStore.setItemAsync("foto", responseApi1.tokenData.foto);
+    };
+    if (responseApi1) {
+      if (responseApi1.token) {
+        store();
+        router.replace(`/(appBorrower)/${responseApi1.tokenData.id_ub}/home`);
+      }
+    }
+  }, [responseApi1, router]);
 
   return (
     <View style={styles.wrapperLogin}>
-      {loading ? (
+      {loadingApi1 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
@@ -70,7 +125,7 @@ export default function Index() {
               placeholder="Email atau Nomor Handphone"
               placeholderTextColor="#666"
               style={styles.inputText}
-              onChangeText={getUsername}
+              onChange={getUsername}
             />
             <View style={styles.wrapperPass}>
               <TextInput
@@ -78,7 +133,7 @@ export default function Index() {
                 placeholderTextColor="#666"
                 style={styles.inputPass}
                 secureTextEntry={isVisible}
-                onChangeText={getPassword}
+                onChange={getPassword}
               />
               {isVisible ? (
                 <Ionicons
@@ -105,7 +160,7 @@ export default function Index() {
             btnWidth="60%"
             btnText="Login"
             btnFont="InterMedium"
-            // onPress={routeHandler}
+            onPress={routeHandler}
           />
           <View style={styles.wrapperRegister}>
             <Text style={styles.textRegis}>Belum Punya Akun?</Text>

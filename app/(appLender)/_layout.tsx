@@ -56,6 +56,10 @@ export default function AppLayout() {
         name="[id_ul]/detail"
         options={{ headerShown: false, href: null }}
       />
+      <Tabs.Screen
+        name="[id_ul]/waitingApprove"
+        options={{ headerShown: false, href: null }}
+      />
     </Tabs>
   );
 }

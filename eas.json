@@ -1,0 +1,68 @@
+{
+  "cli": {
+    "version": ">=0.60.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      // "releaseChannel": "development",
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://api.doeku.id",
+        "EXPO_PUBLIC_SERVICE_A1": "/api/borrower",
+        "EXPO_PUBLIC_SERVICE_B1": "/api/lender",
+        "EXPO_PUBLIC_SERVICE_D1": "/api/lendingrequest",
+        "EXPO_PUBLIC_SERVICE_E1": "/api/scoring",
+        "EXPO_PUBLIC_SERVICE_F1": "/api/bni",
+        "EXPO_PUBLIC_SERVICE_I1": "/api/eventbus",
+        "EXPO_PUBLIC_SERVICE_J1": "/api/image",
+        "EXPO_PUBLIC_SERVICE_L1": "/api/agreement",
+        "EXPO_PUBLIC_SERVICE_N1": "/api/repayment",
+        "EXPO_PUBLIC_SERVICE_P1": "/api/notifikasi",
+        "EXPO_PUBLIC_SERVICE_S1": "/api/ciu",
+        "EXPO_PUBLIC_SERVICE_T1": "/api/wilayah",
+        "EXPO_PUBLIC_SECRET_KEY": "doekupi1!"
+      }
+    },
+    "production": {
+      "releaseChannel": "production",
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://api.doeku.id",
+        "EXPO_PUBLIC_SERVICE_A1": "/api/borrower",
+        "EXPO_PUBLIC_SERVICE_B1": "/api/lender",
+        "EXPO_PUBLIC_SERVICE_D1": "/api/lendingrequest",
+        "EXPO_PUBLIC_SERVICE_E1": "/api/scoring",
+        "EXPO_PUBLIC_SERVICE_F1": "/api/bni",
+        "EXPO_PUBLIC_SERVICE_I1": "/api/eventbus",
+        "EXPO_PUBLIC_SERVICE_J1": "/api/image",
+        "EXPO_PUBLIC_SERVICE_L1": "/api/agreement",
+        "EXPO_PUBLIC_SERVICE_N1": "/api/repayment",
+        "EXPO_PUBLIC_SERVICE_P1": "/api/notifikasi",
+        "EXPO_PUBLIC_SERVICE_S1": "/api/ciu",
+        "EXPO_PUBLIC_SERVICE_T1": "/api/wilayah",
+        "EXPO_PUBLIC_SECRET_KEY": "doekupi1!"
+      }
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://api.doeku.id",
+        "EXPO_PUBLIC_SERVICE_A1": "/api/borrower",
+        "EXPO_PUBLIC_SERVICE_B1": "/api/lender",
+        "EXPO_PUBLIC_SERVICE_D1": "/api/lendingrequest",
+        "EXPO_PUBLIC_SERVICE_E1": "/api/scoring",
+        "EXPO_PUBLIC_SERVICE_F1": "/api/bni",
+        "EXPO_PUBLIC_SERVICE_I1": "/api/eventbus",
+        "EXPO_PUBLIC_SERVICE_J1": "/api/image",
+        "EXPO_PUBLIC_SERVICE_L1": "/api/agreement",
+        "EXPO_PUBLIC_SERVICE_N1": "/api/repayment",
+        "EXPO_PUBLIC_SERVICE_P1": "/api/notifikasi",
+        "EXPO_PUBLIC_SERVICE_S1": "/api/ciu",
+        "EXPO_PUBLIC_SERVICE_T1": "/api/wilayah",
+        "EXPO_PUBLIC_SECRET_KEY": "doekupi1!"
+      }
+    }
+  }
+}

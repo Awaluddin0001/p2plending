@@ -16,6 +16,7 @@ import {
 //   import { setStorageItemAsync } from "../../../../src/components/util/LoginStorage";
 //   import { useMyContext } from "../../../../src/components/util/LoginContext";
 import UserImage from "@/components/util/userImage";
+import MyButton from "@/components/util/myButton";
 import { color } from "@/constants/Colors";
 
 export default function Setting() {
@@ -50,11 +51,27 @@ export default function Setting() {
   //   setStorageItemAsync("jwt");
   //   router.push(`/`);
   // };
+  const logOutHandler = () => {
+    const deleteStore = async () => {
+      await SecureStore.deleteItemAsync("email");
+      await SecureStore.deleteItemAsync("token");
+      await SecureStore.deleteItemAsync("business");
+      await SecureStore.deleteItemAsync("id_ub");
+      await SecureStore.deleteItemAsync("name");
+      await SecureStore.deleteItemAsync("phone");
+      await SecureStore.deleteItemAsync("gender");
+      await SecureStore.deleteItemAsync("foto");
+    };
+    deleteStore();
+    router.push(`/(loginBorrower)`);
+  };
 
   return (
     <View style={styles.container}>
+      <Text>On Maintenance</Text>
+      <MyButton btnText="log out" onPress={logOutHandler} btnType="primary" />
       <ScrollView>
-        <Text style={styles.tagHead}>Akun:</Text>
+        {/* <Text style={styles.tagHead}>Akun:</Text> */}
         {/* <Pressable style={styles.editTab} onPress={editDatapribadi}>
           <View
             style={{

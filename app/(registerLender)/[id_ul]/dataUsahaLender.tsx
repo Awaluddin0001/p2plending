@@ -26,9 +26,9 @@ type typeInput = {
   };
 };
 
-export default function DataUsaha() {
+export default function DataUsahaLender() {
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams<{ id_ub: string }>();
+  const { id_ul } = useLocalSearchParams<{ id_ul: string }>();
   // detail usaha
   const [namaUsaha, setNamausaha] = useState("");
   const [bentukUsaha, setBentukusaha] = useState("");
@@ -106,7 +106,7 @@ export default function DataUsaha() {
 
   const routeHandler = async () => {
     const body = {
-      id_ub,
+      id_ul,
       bname: namaUsaha,
       form: bentukUsaha,
       field: bidangUsaha,
@@ -129,7 +129,7 @@ export default function DataUsaha() {
       await fetchDataApi1(
         "post",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
         "/businessUser",
         body
       );
@@ -140,7 +140,7 @@ export default function DataUsaha() {
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "success") {
-          router.push(`/${id_ub}/dataDarurat`);
+          router.push(`/${id_ul}/fotoDalamTokoLender`);
         } else {
           responseApi1.message = "";
           Alert.alert(
@@ -150,7 +150,7 @@ export default function DataUsaha() {
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, id_ul, router]);
 
   async function verifyPermissions() {
     if (status) {
@@ -167,8 +167,8 @@ export default function DataUsaha() {
   const pickImage = async () => {
     const hasPermission = await verifyPermissions();
 
-    const encrypFilename = id_ub
-      ? CryptoJS.SHA1(id_ub, {
+    const encrypFilename = id_ul
+      ? CryptoJS.SHA1(id_ul, {
           key: process.env.EXPO_PUBLIC_SECRET_KEY,
         }).toString()
       : "";

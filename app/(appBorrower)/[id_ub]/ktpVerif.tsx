@@ -2,22 +2,37 @@ import CryptoJS from "crypto-js";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Image, ActivityIndicator } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
+import { useImageUploader } from "@/components/util/uploadImage";
 import { color } from "@/constants/Colors";
-// import { postApiBs } from "../../../../src/components/util/BorrowerService";
 
 export default function KtpVerif() {
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
-  const [pickedImage, setPickedImage] = useState();
+  const [pickedImage, setPickedImage] = useState<string | undefined>();
   const [image, setImage] = useState("");
   const router = useRouter();
   const { id_ub } = useLocalSearchParams();
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [isUpload, setIsupload] = useState(false);
-  const [loadingUpload, setLoadingUpload] = useState(false);
+  const {
+    isUpload: isImageUploaded,
+    loading: imageLoading,
+    uploadImage,
+  } = useImageUploader();
+
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
 
   async function verifyPermissions() {
     if (status) {
@@ -30,11 +45,6 @@ export default function KtpVerif() {
 
     return true;
   }
-
-  //   const encrypFilename = CryptoJS.SHA1(
-  //     id_ub,
-  //     process.env.EXPO_PUBLIC_SECRET_KEY
-  //   ).toString();
 
   async function takePictureHandler() {
     const hasPermission = await verifyPermissions();
@@ -50,27 +60,37 @@ export default function KtpVerif() {
       quality: 0.55,
     });
 
-    // if (!image.canceled) {
-    //   setImage(`${encrypFilename}.jpg`);
-    //   setPickedImage(image.assets[0].uri);
-    //   uploadImage(
-    //     image.assets[0].uri,
-    //     "/api/image/ktp",
-    //     encrypFilename,
-    //     setIsupload,
-    //     setLoadingUpload
-    //   );
-    // }
+    const encrypFilename = id_ub
+      ? CryptoJS.SHA1(id_ub as string, {
+          key: process.env.EXPO_PUBLIC_SECRET_KEY,
+        }).toString()
+      : "";
+
+    if (!image.canceled) {
+      setImage(`${encrypFilename}.jpg`);
+      const ImageData = {
+        uri: image.assets[0].uri,
+        name: `${encrypFilename}.jpg`,
+        type: "image/jpeg",
+      };
+      setPickedImage(image.assets[0].uri);
+      uploadImage(ImageData, "/ktp");
+    }
   }
 
-  const routeHandler = () => {
+  const routeHandler = async () => {
     const body = {
-      id_ub: id_ub,
+      id_ub,
       ktp: image,
     };
 
-    // postApiBs(body, "/api/borrower/ktpUser", setData, setLoading);
-    // router.push(`${process.env.EXPO_PUBLIC_ROUTE_BORROWER_DASH}/*`);
+    await fetchDataApi1(
+      "post",
+      `${process.env.EXPO_PUBLIC_BASE_URL}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+      "/ktpUser",
+      body
+    );
   };
 
   //   useEffect(() => {
@@ -81,10 +101,26 @@ export default function KtpVerif() {
   //     }
   //   }, [data, isUpload]);
 
+  useEffect(() => {
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "success") {
+          router.push(`/${id_ub}/faceBiometric`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert(
+            "gagal",
+            "ada maintenance pada server coba lagi beberapa saat kemudian"
+          );
+        }
+      }
+    }
+  }, [responseApi1, id_ub, router]);
+
   return (
     <View style={styles.wraperSection}>
       <Text>Verifi KTP</Text>
-      {loading ? (
+      {loadingApi1 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
@@ -92,9 +128,9 @@ export default function KtpVerif() {
             Harap hasil foto cukup jelas dan tidak blur
           </Text>
           <View style={styles.viewImage}>
-            {loadingUpload ? (
+            {imageLoading ? (
               <ActivityIndicator size="large" color={color.primary} />
-            ) : isUpload ? (
+            ) : isImageUploaded ? (
               <Image
                 source={{ uri: pickedImage }}
                 style={styles.myImage}
@@ -106,11 +142,11 @@ export default function KtpVerif() {
           </View>
           <MyButton
             onPress={takePictureHandler}
-            btnText={isUpload ? "Ambil ulang foto" : "Ambil foto"}
+            btnText={isImageUploaded ? "Ambil ulang foto" : "Ambil foto"}
             btnWidth="90%"
             btnType="secondary"
           />
-          {isUpload && (
+          {isImageUploaded && (
             <MyButton
               btnText="Selanjutnya"
               btnType="primary"

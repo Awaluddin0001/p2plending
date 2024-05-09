@@ -70,10 +70,10 @@ export default function RegisterLayout() {
         options={stackScreen(`${tagRegis}Foto Luar Toko`)}
       />
       <Stack.Screen
-        name="[id_ub]/tandaTangan"
+        name="[id_ub]/regTtd"
         options={stackScreen(`${tagRegis}Tanda Tangan`)}
       />
-      <Stack.Screen name="[id_ub]/registrasiComplete" options={hideStack} />
+      <Stack.Screen name="registrasiComplete" options={hideStack} />
     </Stack>
   );
 }

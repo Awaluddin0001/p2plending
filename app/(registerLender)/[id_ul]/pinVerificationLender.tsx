@@ -15,12 +15,12 @@ import MyButton from "@/components/util/myButton";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function PinVerification() {
+export default function PinVerificationLender() {
   const [valueOTP, setValueOTP] = useState(" ");
   const [pin, setPin] = useState("");
   const [isDone, setIsdone] = useState(false);
   const otpRef = useRef<TextInput>(null);
-  const { id_ub } = useLocalSearchParams();
+  const { id_ul } = useLocalSearchParams();
 
   const {
     loading: loadingApi1,
@@ -65,14 +65,14 @@ export default function PinVerification() {
   const routeHandler = async () => {
     if (pin) {
       const body = {
-        id_ub,
+        id_ul,
         pin,
       };
 
       await fetchDataApi1(
         "get",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
         "/authPin",
         undefined,
         body
@@ -84,14 +84,14 @@ export default function PinVerification() {
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "auth") {
-          router.push(`/${id_ub}/dataPribadi`);
+          router.push(`/${id_ul}/dataPribadiLender`);
         } else if (responseApi1.message === "wrong") {
           responseApi1.message = "";
           Alert.alert("Salah", "pin yang anda masukkan tidak sesuai");
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, id_ul, router]);
 
   return (
     <View style={styles.wraperSendOtp}>

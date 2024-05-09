@@ -8,20 +8,18 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  Alert,
 } from "react-native";
 
 import MyButton from "@/components/util/myButton";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function PinVerification() {
+export default function PinRegistrationLender() {
   const [valueOTP, setValueOTP] = useState(" ");
   const [pin, setPin] = useState("");
   const [isDone, setIsdone] = useState(false);
   const otpRef = useRef<TextInput>(null);
-  const { id_ub } = useLocalSearchParams();
-
+  const { id_ul } = useLocalSearchParams();
   const {
     loading: loadingApi1,
     resp: responseApi1,
@@ -65,16 +63,15 @@ export default function PinVerification() {
   const routeHandler = async () => {
     if (pin) {
       const body = {
-        id_ub,
+        id_ul,
         pin,
       };
 
       await fetchDataApi1(
-        "get",
+        "post",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
-        "/authPin",
-        undefined,
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+        "/newPin",
         body
       );
     }
@@ -83,15 +80,12 @@ export default function PinVerification() {
   useEffect(() => {
     if (responseApi1) {
       if (responseApi1.message) {
-        if (responseApi1.message === "auth") {
-          router.push(`/${id_ub}/dataPribadi`);
-        } else if (responseApi1.message === "wrong") {
-          responseApi1.message = "";
-          Alert.alert("Salah", "pin yang anda masukkan tidak sesuai");
+        if (responseApi1.message === "success") {
+          router.push(`/${id_ul}/pinVerificationLender`);
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, id_ul, router]);
 
   return (
     <View style={styles.wraperSendOtp}>
@@ -100,7 +94,7 @@ export default function PinVerification() {
       ) : (
         <>
           <Image source={require("@/assets/images/terimaOtp.png")} />
-          <Text style={styles.headertext}>Input Ulang Pin Anda</Text>
+          <Text style={styles.headertext}>Atur Pin Anda</Text>
           <Pressable
             onPress={userPressOTP}
             style={{
@@ -117,6 +111,10 @@ export default function PinVerification() {
               ))}
             </View>
           </Pressable>
+          <Text style={styles.normalText}>
+            PIN anda digunakan saat meminta pinjaman, saat membuka applikasi dan
+            lain sebagainya
+          </Text>
           <View style={styles.wrapperOtp}>
             <TextInput
               maxLength={6}
@@ -132,8 +130,8 @@ export default function PinVerification() {
             btnType={isDone && "primary"}
             btnWidth="60%"
             onPress={routeHandler}
-            btnText="Verifikasi"
-            // btnDisable={!isDone}
+            btnText="Kirim"
+            btnDisable={!isDone}
           />
         </>
       )}
@@ -166,6 +164,8 @@ const styles = StyleSheet.create({
     fontFamily: "InterRegular",
     marginVertical: 11,
     color: "#888",
+    width: "60%",
+    textAlign: "center",
   },
   wrapperOtp: {
     opacity: 0,

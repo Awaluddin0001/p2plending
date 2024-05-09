@@ -16,13 +16,12 @@ import { useImageUploader } from "@/components/util/uploadImage";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function FotoDalamToko() {
+export default function FotoLuarTokoLender() {
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
-  const [pickedImage, setPickedImage] = useState<string | undefined>(undefined);
+  const [pickedImage, setPickedImage] = useState<string | undefined>();
   const [image, setImage] = useState("");
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams();
-
+  const { id_ul } = useLocalSearchParams();
   const {
     isUpload: isImageUploaded,
     loading: imageLoading,
@@ -61,8 +60,8 @@ export default function FotoDalamToko() {
       quality: 0.6,
     });
 
-    const encrypFilename = id_ub
-      ? CryptoJS.SHA1(id_ub as string, {
+    const encrypFilename = id_ul
+      ? CryptoJS.SHA1(id_ul as string, {
           key: process.env.EXPO_PUBLIC_SECRET_KEY,
         }).toString()
       : "";
@@ -75,21 +74,21 @@ export default function FotoDalamToko() {
         type: "image/jpeg",
       };
       setPickedImage(image.assets[0].uri);
-      uploadImage(ImageData, "/tokodalam");
+      uploadImage(ImageData, "/tokoluar");
     }
   }
 
   const routeHandler = async () => {
     const body = {
-      id_ub,
-      insideviewbusiness: image,
+      id_ul,
+      outsideviewbusiness: image,
     };
 
     await fetchDataApi1(
       "post",
       `${process.env.EXPO_PUBLIC_BASE_URL}`,
-      `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
-      "/tokodalam",
+      `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+      "/tokoluar",
       body
     );
   };
@@ -98,7 +97,7 @@ export default function FotoDalamToko() {
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "success") {
-          router.push(`/${id_ub}/fotoLuarToko`);
+          router.push(`/${id_ul}/regTtdLender`);
         } else {
           responseApi1.message = "";
           Alert.alert(
@@ -108,7 +107,7 @@ export default function FotoDalamToko() {
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, id_ul, router]);
 
   return (
     <View style={styles.wraperSection}>

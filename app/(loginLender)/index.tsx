@@ -12,8 +12,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { color } from "@/constants/Colors";
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
+import { color } from "@/constants/Colors";
+
+type inputType = {
+  nativeEvent: { text: string };
+};
 
 export default function Index() {
   const [isVisible, setIsVisible] = useState(true);
@@ -34,15 +39,67 @@ export default function Index() {
   //     redirect();
   //   }, []);
 
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
+
   const passVisibleHandler = () => {
     setIsVisible((is) => !is);
   };
-  const getUsername = (text: any) => {
+  const getUsername = ({ nativeEvent: { text } }: inputType) => {
     setUsername(text);
   };
-  const getPassword = (text: any) => {
+  const getPassword = ({ nativeEvent: { text } }: inputType) => {
     setPassword(text);
   };
+
+  const routeHandler = async () => {
+    const body = {
+      username,
+      password,
+    };
+
+    await fetchDataApi1(
+      "post",
+      `${process.env.EXPO_PUBLIC_BASE_URL}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+      "/login",
+      body
+    );
+    // await AsyncStorage.setItem("token")
+    // const data = await getJwt("lender");
+    // if (data) {
+    //   router.replace(
+    //     `${process.env.EXPO_PUBLIC_ROUTE_LENDER_DASH}/${data.id_ul}/home`
+    //   );
+    // }
+  };
+
+  useEffect(() => {
+    // const store = async () => {
+    //   await SecureStore.setItemAsync("email", responseApi1.tokenData.email);
+    //   await SecureStore.setItemAsync("token", responseApi1.token);
+    //   await SecureStore.setItemAsync(
+    //     "business",
+    //     responseApi1.tokenData.business
+    //   );
+    //   await SecureStore.setItemAsync("id_ub", responseApi1.tokenData.id_ub);
+    //   await SecureStore.setItemAsync("name", responseApi1.tokenData.name);
+    //   await SecureStore.setItemAsync("phone", responseApi1.tokenData.phone);
+    //   await SecureStore.setItemAsync("gender", responseApi1.tokenData.gender);
+    //   await SecureStore.setItemAsync("foto", responseApi1.tokenData.foto);
+    // };
+    if (responseApi1) {
+      if (responseApi1.token) {
+        // store();
+        router.replace(
+          `/(appLender)/${responseApi1.tokenData.id_lb}/waitingApprove`
+        );
+      }
+    }
+  }, [responseApi1, router]);
 
   //   const routeHandler = async () => {
   //     const login = await loginState(username, password, setLoading, "lender");
@@ -70,7 +127,7 @@ export default function Index() {
               placeholder="Email atau Nomor Handphone"
               placeholderTextColor="#666"
               style={styles.inputText}
-              onChangeText={getUsername}
+              onChange={getUsername}
             />
             <View style={styles.wrapperPass}>
               <TextInput
@@ -78,7 +135,7 @@ export default function Index() {
                 placeholderTextColor="#666"
                 style={styles.inputPass}
                 secureTextEntry={isVisible}
-                onChangeText={getPassword}
+                onChange={getPassword}
               />
               {isVisible ? (
                 <Ionicons
@@ -105,16 +162,16 @@ export default function Index() {
             btnWidth="60%"
             btnText="Login"
             btnFont="InterMedium"
-            // onPress={routeHandler}
+            onPress={routeHandler}
           />
           <View style={styles.wrapperRegister}>
             <Text style={styles.textRegis}>Belum Punya Akun?</Text>
-            {/* <Link
-              href="/register/pemberiDana/termCond"
-              style={styles.textRegis}
+            <Link
+              href={{ pathname: "/(registerLender)/termCondLender" }}
+              style={{ ...styles.textRegis, color: color.primary }}
             >
               Register
-            </Link> */}
+            </Link>
           </View>
         </>
       )}

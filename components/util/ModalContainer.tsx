@@ -36,7 +36,6 @@ export default function ModalContainer({
   const dt = DateTime.now().setZone("Asia/Singapore");
   const compDate = dt.toFormat("dd-MM-yyyy hh:mm:ss");
 
-  console.log(sign);
   return (
     <View style={styles.container}>
       <Text style={styles.headingModal}>

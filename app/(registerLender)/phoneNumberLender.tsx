@@ -15,7 +15,7 @@ import MyButton from "@/components/util/myButton";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function PhoneNumber() {
+export default function PhoneNumberLender() {
   const router = useRouter();
   const [latitude, setLatitude] = useState(" " as string | number);
   const [longitude, setLongitude] = useState(" " as string | number);
@@ -84,7 +84,7 @@ export default function PhoneNumber() {
         await fetchDataApi1(
           "post",
           `${process.env.EXPO_PUBLIC_BASE_URL}`,
-          `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+          `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
           "/registerPhone",
           data
         );
@@ -96,22 +96,22 @@ export default function PhoneNumber() {
 
   useEffect(() => {
     if (responseApi1) {
-      if (responseApi1.message && responseApi1.id_ub) {
+      if (responseApi1.message && responseApi1.id_ul) {
         if (responseApi1.message === "success") {
-          router.push(`/${responseApi1.id_ub}/phoneOtp`);
+          router.push(`/${responseApi1.id_ul}/phoneOtpLender`);
         } else if (responseApi1.message === "verified") {
-          router.push(`/${responseApi1.id_ub}/emailRegistration`);
+          router.push(`/${responseApi1.id_ul}/emailRegistrationLender`);
         } else if (responseApi1.message === "pin") {
-          router.push(`/${responseApi1.id_ub}/pinRegistration`);
+          router.push(`/${responseApi1.id_ul}/pinRegistrationLender`);
         } else if (responseApi1.message === "detail") {
-          router.push(`/${responseApi1.id_ub}/dataPribadi`);
+          router.push(`/${responseApi1.id_ul}/dataPribadiLender`);
         } else if (responseApi1.message === "business") {
-          router.push(`/${responseApi1.id_ub}/dataUsaha`);
+          router.push(`/${responseApi1.id_ul}/dataUsahaLender`);
         } else if (responseApi1.message === "registere") {
           Alert.alert("Registered", "anda telah terdaftar", [
             {
               text: "Ok",
-              onPress: () => router.push(`/(loginBorrower)`),
+              onPress: () => router.push(`/(loginLender)`),
             },
           ]);
         }

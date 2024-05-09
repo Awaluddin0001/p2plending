@@ -16,12 +16,12 @@ import { useImageUploader } from "@/components/util/uploadImage";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function FotoDalamToko() {
+export default function FotoDalamTokoLender() {
   const [status, requestPermission] = ImagePicker.useCameraPermissions();
   const [pickedImage, setPickedImage] = useState<string | undefined>(undefined);
   const [image, setImage] = useState("");
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams();
+  const { id_ul } = useLocalSearchParams();
 
   const {
     isUpload: isImageUploaded,
@@ -61,8 +61,8 @@ export default function FotoDalamToko() {
       quality: 0.6,
     });
 
-    const encrypFilename = id_ub
-      ? CryptoJS.SHA1(id_ub as string, {
+    const encrypFilename = id_ul
+      ? CryptoJS.SHA1(id_ul as string, {
           key: process.env.EXPO_PUBLIC_SECRET_KEY,
         }).toString()
       : "";
@@ -81,14 +81,14 @@ export default function FotoDalamToko() {
 
   const routeHandler = async () => {
     const body = {
-      id_ub,
+      id_ul,
       insideviewbusiness: image,
     };
 
     await fetchDataApi1(
       "post",
       `${process.env.EXPO_PUBLIC_BASE_URL}`,
-      `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
       "/tokodalam",
       body
     );
@@ -98,7 +98,7 @@ export default function FotoDalamToko() {
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "success") {
-          router.push(`/${id_ub}/fotoLuarToko`);
+          router.push(`/${id_ul}/fotoLuarTokoLender`);
         } else {
           responseApi1.message = "";
           Alert.alert(
@@ -108,7 +108,7 @@ export default function FotoDalamToko() {
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, id_ul, router]);
 
   return (
     <View style={styles.wraperSection}>

@@ -13,11 +13,8 @@ import {
 
 // component and template
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
-// import {
-//   getApiBs,
-//   getReApiBs,
-// } from "../../../../src/components/util/BorrowerService";
 
 type inputType = {
   nativeEvent: { text: string };
@@ -25,19 +22,22 @@ type inputType = {
 
 export default function EmailOtp() {
   const [valueOTP, setValueOTP] = useState(" ");
-  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [isDone, setIsdone] = useState(false);
   const otpRef = useRef<TextInput>(null);
   const { id_ub } = useLocalSearchParams();
-  const [data, setData] = useState<{
-    data: {
-      email?: string | undefined;
-    };
-    message?: string | undefined;
-  }>({ data: { email: "" } });
-  const [loading, setLoading] = useState(false);
   const [isResend, setIsresend] = useState(true);
+
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
+  const {
+    loading: loadingApi2,
+    resp: responseApi2,
+    fetchData: fetchDataApi2,
+  } = useApi<any>();
 
   function convertToFixedLengthArray(str: string) {
     const fixedLength = 6;
@@ -46,26 +46,9 @@ export default function EmailOtp() {
     return arrayFromString;
   }
 
-  let otpLength = convertToFixedLengthArray(valueOTP);
+  const otpLength = convertToFixedLengthArray(valueOTP);
 
   const router = useRouter();
-
-  const routeHandler = () => {
-    if (code) {
-      const body = {
-        id_ub: id_ub,
-        otp: code,
-      };
-
-      //   getApiBs(body, "/api/borrower/otpEmail", setData, setLoading);
-    }
-    // router.push(
-    //   `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/inputPin`
-    // );
-  };
-  useEffect(() => {
-    // getApiBs({ id_ub: id_ub }, "/api/borrower/email", setData, setLoading);
-  }, []);
 
   const inputOTP = (e: string) => {
     setValueOTP(e);
@@ -73,6 +56,11 @@ export default function EmailOtp() {
 
   const getCode = ({ nativeEvent: { text } }: inputType) => {
     setCode(text);
+    if (text.length === 6) {
+      setIsdone(true);
+    } else {
+      setIsdone(false);
+    }
   };
 
   const userPressOTP = () => {
@@ -81,76 +69,74 @@ export default function EmailOtp() {
     }
   };
 
-  useEffect(() => {
-    const dataLength = Object.keys(data).length;
-    if (dataLength > 0 && !email) {
-      if (data.data.email) {
-        setEmail(data.data.email);
-      }
-    }
-    if (valueOTP) {
-      otpLength = convertToFixedLengthArray(valueOTP);
-    }
-    if (code.length === 6) {
-      setIsdone(true);
-    } else {
-      setIsdone(false);
-    }
-    if (data.message) {
-      if (data.message === "auth") {
-        //   router.push(
-        //     `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/inputPin`
-        //   );
-      }
-      if (data.message === "wait") {
-        Alert.alert(
-          "Limit Input",
-          "Anda telah melewat batas percobaan, tunggu dalam 1x24 jam",
-          [
-            {
-              onPress: () =>
-                setData((fd) => {
-                  return { ...fd, message: "" };
-                }),
-            },
-          ]
-        );
-      }
-      if (data.message === "wrong") {
-        Alert.alert("Wrong OTP", "Angka yang anda masukkan tidak sesuai", [
-          {
-            onPress: () =>
-              setData((fd) => {
-                return { ...fd, message: "" };
-              }),
-          },
-        ]);
-      }
-    }
-  }, [valueOTP, code, data]);
-
   const resendEmail = async () => {
-    // const res = await getReApiBs(
-    //   { id_ub: id_ub },
-    //   "/api/borrower/resendOtpemail",
-    //   setLoading
-    // );
-    // if (res.message === "send") {
-    //   Alert.alert("Resend OTP", "Kode OTP telah dikirim ulang");
-    //   setIsresend(false);
-    // }
+    await fetchDataApi2(
+      "get",
+      `${process.env.EXPO_PUBLIC_BASE_URL}`,
+      `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+      "/resendOtpemail",
+      undefined,
+      { id_ub }
+    );
   };
+
+  const routeHandler = async () => {
+    if (code) {
+      const body = {
+        id_ub,
+        otp: code,
+      };
+
+      await fetchDataApi1(
+        "get",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        "/otpEmail",
+        undefined,
+        body
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "wrong") {
+          responseApi1.message = "";
+          Alert.alert("Salah", "Kode yang anda masukkan tidak sesuai");
+        } else if (responseApi1.message === "auth") {
+          router.push(`/${id_ub}/pinRegistration`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert(
+            "error",
+            "Server dalam keadaan Maintenance, balik lagi nanti"
+          );
+        }
+      }
+    }
+    if (responseApi2) {
+      if (responseApi2.message) {
+        if (responseApi2.message === "send") {
+          setIsresend(false);
+          Alert.alert("Resend OTP", "Kode OTP telah dikirim ulang");
+        } else {
+          Alert.alert("Resend OTP", "Kode OTP gagal dikirim ulang");
+        }
+      }
+    }
+  }, [responseApi1, responseApi2, router, id_ub]);
 
   return (
     <View style={styles.wraperSendOtp}>
-      {loading ? (
+      {loadingApi1 || loadingApi2 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
-          <Image source={require("@/assets/images/verifikasiEmail")} />
+          <Image source={require("@/assets/images/verifikasiEmail.png")} />
           <Text style={styles.headertext}>Verifikasi Email</Text>
           <Text style={styles.normalText}>
-            Kode verifikasi telah terkirim ke {email}
+            Kode verifikasi telah terkirim ke email
           </Text>
           <Pressable
             onPress={userPressOTP}
@@ -174,8 +160,8 @@ export default function EmailOtp() {
               keyboardType="numeric"
               inputMode="numeric"
               onChangeText={inputOTP}
+              onChange={getCode}
               ref={otpRef}
-              onEndEditing={getCode}
             />
           </View>
           <View

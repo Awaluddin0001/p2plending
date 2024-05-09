@@ -1,11 +1,11 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useState, useEffect, useCallback } from "react";
 import {
   Text,
   View,
   StyleSheet,
-  Image,
   ScrollView,
   ActivityIndicator,
 } from "react-native";
@@ -13,18 +13,88 @@ import {
 import MyButton from "@/components/util/myButton";
 import toRupiah from "@/components/util/toRupiah";
 import UserImage from "@/components/util/userImage";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
-// import { useMyContext } from "../../../../src/components/util/LoginContext";
-// import { getReApiLrs } from "../../../../src/components/util/LenderService";
-// import { getEB } from "../../../../src/components/util/EventBus";
+import { appDimension } from "@/constants/Sizes";
 
 export default function Home() {
   const router = useRouter();
   //   const contextData = useMyContext();
-  const [totalPinjaman, setTotalpinjaman] = useState();
-  const [balance, setBalance] = useState();
-  const [listBorrower, setListborrower] = useState();
+  const [totalPinjaman, setTotalpinjaman] = useState("0");
+  const [balance, setBalance] = useState("0");
+  const [userData, setUserData] = useState<{
+    token: string | null;
+    name: string | null;
+    business: string | null;
+    id_ub: string | null;
+    email: string | null;
+    foto: string | null;
+    phone: string | null;
+    gender: string | null;
+  }>({
+    token: "",
+    business: "",
+    name: "",
+    id_ub: "",
+    email: "",
+    foto: "",
+    phone: "",
+    gender: "",
+  });
+  const [data, setdata] = useState<{
+    data: [
+      {
+        id_trb?: string | undefined;
+        amountdebt?: string | number | undefined;
+        tenor?: string | undefined;
+        requestdate?: string | undefined;
+        status?: string | undefined;
+      },
+    ];
+  }>({
+    data: [{}],
+  });
   const [loading, setLoading] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      const session = async () => {
+        const email = await SecureStore.getItemAsync("email");
+        const token = await SecureStore.getItemAsync("token");
+        const business = await SecureStore.getItemAsync("business");
+        const id_ub = await SecureStore.getItemAsync("id_ub");
+        const name = await SecureStore.getItemAsync("name");
+        const phone = await SecureStore.getItemAsync("phone");
+        const gender = await SecureStore.getItemAsync("gender");
+        const foto = await SecureStore.getItemAsync("foto");
+        setUserData({
+          token,
+          business,
+          name,
+          id_ub,
+          email,
+          foto,
+          phone,
+          gender,
+        });
+      };
+      session();
+    }, [])
+  );
+
+  const ajukanPinjaman = () => {
+    router.push(`/${userData.id_ub}/pinjam`);
+  };
+  const bayarAngsuran = () => {
+    router.push(`/${userData.id_ub}/bayar`);
+  };
+
+  // const loadRequestLending = () => {
+  //   const body = {
+  //     id_ub: contextData.id_ub,
+  //   };
+  //   getApiLrs(body, "/api/lendingrequest/myreqborrower", setData, setLoading);
+  // };
 
   //   useEffect(() => {
   //     const fetchDanatersalurkan = async () => {
@@ -60,89 +130,136 @@ export default function Home() {
   //     fetchDanatersalurkan();
   //   }, [contextData]);
 
-  //   const beriPinjaman = () => {
-  //     router.push(
-  //       `${process.env.EXPO_PUBLIC_ROUTE_LENDER_DASH}/${id_ul}/permintaan`
-  //     );
-  //   };
-
   return (
-    <View style={styles.wraperSendOtp}>
-      <View style={styles.headDashboard}>
-        {/* <View style={styles.userInfoDashboard}>
-          <UserImage foto={contextData.foto} gender={contextData.gender} />
-          <View>
-            <Text style={styles.nameDashboard}>{contextData.name}</Text>
-            <Text style={styles.usahaDashboard}>{contextData.business}</Text>
-          </View>
-        </View> */}
-        <FontAwesome name="bell" size={24} color="white" />
-      </View>
-      <View style={styles.pinjamansDashboard}>
-        <View>
-          <Text style={styles.danaHead}>Jumlah Dana</Text>
-          <Text style={styles.danaValueHead}>
-            {balance &&
-              toRupiah(balance, {
-                useUnit: true,
-                floatingPoint: 0,
-                spaceBeforeUnit: true,
-              })}
-          </Text>
-        </View>
-        <View>
-          <Text style={styles.danaHead}>Dana tersalurkan</Text>
-          <Text style={styles.danaValueHead}>
-            {totalPinjaman &&
-              toRupiah(totalPinjaman, {
-                useUnit: true,
-                floatingPoint: 0,
-                spaceBeforeUnit: true,
-              })}
-          </Text>
-        </View>
-        <View>
-          <Text style={styles.danaHead}>Jumlah Peminjam Aktif</Text>
-          <Text style={styles.danaValueHead}>0</Text>
-        </View>
-      </View>
-      <View style={styles.buttonWrapper}>
-        <MyButton
-          btnText="Beri Pinjaman"
-          btnType="secondary"
-          btnWidth="90%"
-          //   onPress={beriPinjaman}
-          key="1"
-        />
-      </View>
-      <Text style={styles.infoDashboard}>History</Text>
-      {/* <ScrollView style={styles.listAngsuran}>
-        {loading ? (
-          <ActivityIndicator size="large" color={color.primary} />
-        ) : listBorrower?.length > 0 ? (
-          listBorrower?.map((val) => (
-            <View style={styles.cardAmount} key={val.id_trb}>
-              <View>
-                <Text>Lending Id</Text>
-                <Text style={styles.amountText}>{val.id_trb}</Text>
-              </View>
-              <View>
-                <Text>Jumlah Pinjaman</Text>
-                <Text style={styles.amountText}>
-                  {toRupiah(val.amountdebt)}
-                </Text>
-              </View>
-              <View>
-                <Text>Status</Text>
-                <Text style={styles.amountText}>{val.status}</Text>
-              </View>
+    <>
+      <View style={styles.wraperSendOtp}>
+        <View style={styles.headDashboard}>
+          <View style={styles.userInfoDashboard}>
+            <UserImage foto={userData.foto} gender={userData.gender} />
+            <View>
+              <Text style={styles.nameDashboard}>{userData.name}</Text>
+              <Text style={styles.usahaDashboard}>{userData.business}</Text>
             </View>
-          ))
-        ) : (
-          <Text>Anda Belum Punya Peminjam</Text>
-        )}
-      </ScrollView> */}
-    </View>
+          </View>
+          <FontAwesome name="bell" size={24} color="white" />
+        </View>
+        <View style={styles.pinjamansDashboard}>
+          <View>
+            <Text style={styles.danaHead}>Pinjaman</Text>
+            <Text style={styles.danaValueHead}>
+              {loading ? (
+                <ActivityIndicator size="large" color={color.primary} />
+              ) : data?.data[0].amountdebt ? (
+                toRupiah(
+                  data?.data?.reduce(function (acc, val) {
+                    return acc + Number(val.amountdebt);
+                  }, 0)
+                )
+              ) : (
+                toRupiah(0)
+              )}
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.danaHead}>Angsuran</Text>
+            <Text style={styles.danaValueHead}>
+              {" "}
+              {loading ? (
+                <ActivityIndicator size="large" color={color.primary} />
+              ) : data?.data[0].tenor ? (
+                toRupiah(
+                  data.data[0].tenor === "61"
+                    ? (Number(data.data[0].amountdebt) * 61 * 0.0015) / 2 +
+                        Number(data.data[0].amountdebt) / 2
+                    : data.data[0].tenor === "75"
+                      ? (Number(data.data[0].amountdebt) * 75 * 0.0013) / 3 +
+                        Number(data.data[0].amountdebt) / 3
+                      : (Number(data.data[0].amountdebt) * 90 * 0.001) / 3 +
+                        Number(data.data[0].amountdebt) / 3
+                )
+              ) : (
+                toRupiah(0)
+              )}
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.danaHead}>Jatuh Tempo</Text>
+            <Text style={styles.danaValueHead}>
+              {" "}
+              {loading ? (
+                <ActivityIndicator size="large" color={color.primary} />
+              ) : data.data[0].requestdate ? (
+                (() => {
+                  if (data.data[0].requestdate) {
+                    // Create a Date object from the input date string
+                    const inputDate = new Date(data.data[0].requestdate);
+
+                    // Add 61 days to the date
+                    inputDate.setDate(inputDate.getDate() + 61);
+
+                    // Get the day, month, and year components
+                    const day = inputDate.getDate().toString().padStart(2, "0");
+                    const month = (inputDate.getMonth() + 1)
+                      .toString()
+                      .padStart(2, "0"); // Note: Month is zero-indexed, so we add 1.
+                    const year = inputDate.getFullYear();
+
+                    // Format the date as "dd-mm-yyyy"
+                    const formattedDate = `${day}-${month}-${year}`;
+                    return formattedDate;
+                  }
+                })()
+              ) : (
+                "-"
+              )}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.buttonWrapper}>
+          <MyButton
+            btnText="Ajukan Pinjaman"
+            btnType="secondary"
+            btnWidth="auto"
+            onPress={ajukanPinjaman}
+            key="1"
+          />
+          <MyButton
+            btnText="Bayar Angsuran"
+            btnType="primary"
+            btnWidth="auto"
+            key="2"
+            onPress={bayarAngsuran}
+          />
+        </View>
+        <Text style={styles.infoDashboard}>Info</Text>
+        <ScrollView style={styles.listAngsuran}>
+          {loading ? (
+            <ActivityIndicator size="large" color={color.primary} />
+          ) : data?.data[0].id_trb ? (
+            data?.data?.map((val) => (
+              <View style={styles.cardAmount} key={val.id_trb}>
+                <View>
+                  <Text>Lending Id</Text>
+                  <Text style={styles.amountText}>{val.id_trb}</Text>
+                </View>
+                <View>
+                  <Text>Jumlah Pinjaman</Text>
+                  <Text style={styles.amountText}>
+                    {toRupiah(val.amountdebt ? val.amountdebt : "0")}
+                  </Text>
+                </View>
+                <View>
+                  <Text>Status</Text>
+                  <Text style={styles.amountText}>{val.status}</Text>
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text>Anda Belum Punya Angsuran</Text>
+          )}
+        </ScrollView>
+      </View>
+    </>
   );
 }
 
@@ -171,11 +288,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
   },
-  fotoDashboard: {
-    borderRadius: 999,
-    width: 60,
-    height: 60,
-  },
   nameDashboard: {
     fontFamily: "InterMedium",
     fontSize: 16,
@@ -191,7 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "space-evenly",
-    marginTop: -32,
+    marginTop: appDimension.heightScreen < 960 ? -10 : -32,
     padding: 20,
     flexDirection: "row",
     gap: 20,
@@ -231,7 +343,7 @@ const styles = StyleSheet.create({
   listAngsuran: {
     paddingHorizontal: 20,
     width: "100%",
-    height: "40%",
+    height: appDimension.heightScreen * 0.3,
   },
   cardAmount: {
     shadowColor: "#000",

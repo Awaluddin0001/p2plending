@@ -11,9 +11,8 @@ import {
 } from "react-native";
 
 import MyButton from "@/components/util/myButton";
+import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
-// import { postApiBs } from "../../../../src/components/util/BorrowerService";
-// import { postDavS } from "../../../../src/components/util/DavestService";
 
 export default function PinRegistration() {
   const [valueOTP, setValueOTP] = useState(" ");
@@ -21,8 +20,11 @@ export default function PinRegistration() {
   const [isDone, setIsdone] = useState(false);
   const otpRef = useRef<TextInput>(null);
   const { id_ub } = useLocalSearchParams();
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
 
   function convertToFixedLengthArray(str: string) {
     const fixedLength = 6;
@@ -31,28 +33,9 @@ export default function PinRegistration() {
     return arrayFromString;
   }
 
-  let otpLength = convertToFixedLengthArray(valueOTP);
+  const otpLength = convertToFixedLengthArray(valueOTP);
 
   const router = useRouter();
-
-  const routeHandler = async () => {
-    if (pin) {
-      const body = {
-        id_ub: id_ub,
-        pin: pin,
-      };
-      const davs = {
-        id_ub: id_ub,
-        pasp: pin,
-      };
-      //   await postDavS(davs, "/api/davestpay/pasp", setLoading);
-      //   postApiBs(body, "/api/borrower/newPin", setData, setLoading);
-    }
-
-    // router.push(
-    //   `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/retypePin`
-    // );
-  };
 
   const inputOTP = (e: string) => {
     setValueOTP(e);
@@ -64,6 +47,11 @@ export default function PinRegistration() {
     nativeEvent: { text: string };
   }) => {
     setPin(text);
+    if (text.length === 6) {
+      setIsdone(true);
+    } else {
+      setIsdone(false);
+    }
   };
 
   const userPressOTP = () => {
@@ -72,25 +60,36 @@ export default function PinRegistration() {
     }
   };
 
+  const routeHandler = async () => {
+    if (pin) {
+      const body = {
+        id_ub,
+        pin,
+      };
+
+      await fetchDataApi1(
+        "post",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        "/newPin",
+        body
+      );
+    }
+  };
+
   useEffect(() => {
-    if (valueOTP) {
-      otpLength = convertToFixedLengthArray(valueOTP);
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "success") {
+          router.push(`/${id_ub}/pinVerification`);
+        }
+      }
     }
-    if (pin.length == 6) {
-      setIsdone(true);
-    } else {
-      setIsdone(false);
-    }
-    // if (data.message == "success") {
-    //   router.push(
-    //     `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/${id_ub}/retypePin`
-    //   );
-    // }
-  }, [valueOTP, pin, data]);
+  }, [responseApi1, id_ub, router]);
 
   return (
     <View style={styles.wraperSendOtp}>
-      {loading ? (
+      {loadingApi1 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
@@ -122,7 +121,7 @@ export default function PinRegistration() {
               keyboardType="numeric"
               inputMode="numeric"
               onChangeText={inputOTP}
-              onEndEditing={getPin}
+              onChange={getPin}
               ref={otpRef}
             />
           </View>

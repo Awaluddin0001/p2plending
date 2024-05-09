@@ -36,8 +36,9 @@ export default function Setting() {
 
   return (
     <View style={styles.container}>
+      <Text>On Maintenance</Text>
       <ScrollView>
-        <Text style={styles.tagHead}>Akun:</Text>
+        {/* <Text style={styles.tagHead}>Akun:</Text> */}
         {/* <Pressable style={styles.editTab} onPress={editDatapribadi}>
             <View
               style={{

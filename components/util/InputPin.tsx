@@ -11,8 +11,8 @@ import {
 } from "react-native";
 
 import MyButton from "@/components/util/myButton";
+import useApi from "./useApi";
 import { color } from "@/constants/Colors";
-// import { getApiBs } from "./BorrowerService";
 
 export default function InputPin({
   id_ub,
@@ -28,7 +28,12 @@ export default function InputPin({
   const [isDone, setIsdone] = useState(false);
   const otpRef = useRef<TextInput>(null);
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<{ message?: string | undefined }>({});
+
+  const {
+    loading: loadingApi1,
+    resp: responseApi1,
+    fetchData: fetchDataApi1,
+  } = useApi<any>();
 
   function convertToFixedLengthArray(str: string) {
     const fixedLength = 6;
@@ -37,16 +42,23 @@ export default function InputPin({
     return arrayFromString;
   }
 
-  let otpLength = convertToFixedLengthArray(valueOTP);
+  const otpLength = convertToFixedLengthArray(valueOTP);
 
-  const routeHandler = () => {
+  const routeHandler = async () => {
     if (pin) {
       const body = {
-        id_ub: id_ub,
-        pin: pin,
+        id_ub,
+        pin,
       };
 
-      //   getApiBs(body, "/api/borrower/authPin", setData, setLoading);
+      await fetchDataApi1(
+        "get",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        "/authPin",
+        undefined,
+        body
+      );
     }
   };
 
@@ -60,6 +72,11 @@ export default function InputPin({
     nativeEvent: { text: string };
   }) => {
     setPin(text);
+    if (text.length === 6) {
+      setIsdone(true);
+    } else {
+      setIsdone(false);
+    }
   };
 
   const userPressOTP = () => {
@@ -69,23 +86,19 @@ export default function InputPin({
   };
 
   useEffect(() => {
-    if (valueOTP) {
-      otpLength = convertToFixedLengthArray(valueOTP);
+    if (responseApi1) {
+      if (responseApi1.message) {
+        if (responseApi1.message === "auth") {
+          setIschecked(true);
+          setModalpin(false);
+        } else if (responseApi1.message === "wrong") {
+          setIschecked(false);
+          setModalpin(false);
+          Alert.alert("PIN salah", "silahkan masukkan kembali pin anda");
+        }
+      }
     }
-    if (pin.length == 6) {
-      setIsdone(true);
-    } else {
-      setIsdone(false);
-    }
-    if (data.message === "auth") {
-      setIschecked(true);
-      setModalpin(false);
-    } else if (data.message === "wrong") {
-      setIschecked(false);
-      setModalpin(false);
-      Alert.alert("PIN salah", "silahkan masukkan kembali pin anda");
-    }
-  }, [valueOTP, pin, data]);
+  }, [responseApi1]);
 
   return (
     <View style={styles.wraperSendOtp}>
@@ -123,7 +136,7 @@ export default function InputPin({
               keyboardType="numeric"
               inputMode="numeric"
               onChangeText={inputOTP}
-              onEndEditing={getPin}
+              onChange={getPin}
               ref={otpRef}
             />
           </View>

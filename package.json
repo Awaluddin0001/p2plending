@@ -16,8 +16,8 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "^1.21.0",
-    "@react-native-community/datetimepicker": "^8.0.0",
-    "@react-native-picker/picker": "^2.7.5",
+    "@react-native-community/datetimepicker": "^7.6.1",
+    "@react-native-picker/picker": "^2.6.1",
     "@react-navigation/native": "^6.0.2",
     "axios": "^1.6.8",
     "crypto-js": "^4.2.0",
@@ -43,7 +43,8 @@
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     "react-native-signature-canvas": "^4.7.2",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "react-native-webview": "^13.6.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

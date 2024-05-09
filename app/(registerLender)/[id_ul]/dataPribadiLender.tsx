@@ -20,9 +20,9 @@ type inputType = {
   nativeEvent: { text: string };
 };
 
-export default function DataPribadi() {
+export default function DataPribadiLender() {
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams();
+  const { id_ul } = useLocalSearchParams();
   const [nik, setNik] = useState("");
   const [name, setName] = useState("");
   const [gender, setGender] = useState("pria");
@@ -100,7 +100,7 @@ export default function DataPribadi() {
 
   const routeHandler = async () => {
     const body = {
-      id_ub,
+      id_ul,
       nik,
       name,
       gender,
@@ -124,7 +124,7 @@ export default function DataPribadi() {
       await fetchDataApi1(
         "post",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
         "/detailUser",
         body
       );
@@ -135,7 +135,7 @@ export default function DataPribadi() {
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "success") {
-          router.push(`/${id_ub}/dataUsaha`);
+          router.push(`/${id_ul}/dataUsahaLender`);
         } else {
           responseApi1.message = "";
           Alert.alert(
@@ -145,7 +145,7 @@ export default function DataPribadi() {
         }
       }
     }
-  }, [responseApi1, router, id_ub]);
+  }, [responseApi1, router, id_ul]);
 
   return (
     <View style={styles.wraperSection}>

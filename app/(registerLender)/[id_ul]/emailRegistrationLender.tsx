@@ -1,82 +1,101 @@
-import { Picker } from "@react-native-picker/picker";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   View,
   StyleSheet,
   TextInput,
   ScrollView,
-  ActivityIndicator,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import MyButton from "@/components/util/myButton";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function DataDarurat() {
+export default function EmailRegistrationLender() {
   const router = useRouter();
-  const { id_ub } = useLocalSearchParams();
-  const [name, setName] = useState("");
-  const [hubungan, setHubungan] = useState("ayah");
-  const [handphone, setHandphone] = useState("");
-  const [address, setAddress] = useState("");
+  const [isDone, setIsdone] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rePassword, setRePassword] = useState("");
+  const { id_ul } = useLocalSearchParams();
   const {
     loading: loadingApi1,
     resp: responseApi1,
     fetchData: fetchDataApi1,
   } = useApi<any>();
 
-  const getName = ({
+  const getEmail = ({
     nativeEvent: { text },
   }: {
     nativeEvent: { text: string };
   }) => {
-    setName(text);
-  };
-  const getAddress = ({
-    nativeEvent: { text },
-  }: {
-    nativeEvent: { text: string };
-  }) => {
-    setAddress(text);
-  };
-  const selectHubungan = (val: string) => {
-    setHubungan(val);
-  };
-  const getHandphone = ({
-    nativeEvent: { text },
-  }: {
-    nativeEvent: { text: string };
-  }) => {
-    setHandphone(text);
+    setEmail(text);
   };
 
-  const validForm = () => {
-    if (name && hubungan && handphone && address) {
+  const validateEmail = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValid = emailRegex.test(email);
+    if (isValid) {
       return true;
     } else {
+      Alert.alert("Format Email Salah", "Masukkan Format email yang benar");
       return false;
     }
   };
+
+  const getPassword = ({
+    nativeEvent: { text },
+  }: {
+    nativeEvent: { text: string };
+  }) => {
+    setPassword(text);
+  };
+  const getrepassword = ({
+    nativeEvent: { text },
+  }: {
+    nativeEvent: { text: string };
+  }) => {
+    setRePassword(text);
+  };
+
+  const validatePass = () => {
+    if (password && rePassword) {
+      if (password === rePassword) {
+        return true;
+      } else {
+        Alert.alert("Password tidak sesuai", "Sesuaikan kembali password anda");
+        return false;
+      }
+    }
+  };
+
+  const validForm = () => {
+    if (email && password && rePassword) {
+      setIsdone(true);
+    } else {
+      setIsdone(false);
+    }
+  };
+
   const routeHandler = async () => {
     const body = {
-      id_ub,
-      ename: name,
-      ephone: handphone,
-      relation: hubungan,
-      eaddress: address,
+      id_ul,
+      email,
+      password,
     };
 
-    const notEmpty = validForm();
+    const validEmail = validateEmail();
+    const validPass = validatePass();
 
-    if (notEmpty) {
+    if (validEmail && validPass) {
       await fetchDataApi1(
         "post",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
-        "/emergencyUser",
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+        "/registerEmail",
         body
       );
     }
@@ -84,20 +103,20 @@ export default function DataDarurat() {
 
   useEffect(() => {
     validForm();
+
     if (responseApi1) {
       if (responseApi1.message) {
         if (responseApi1.message === "success") {
-          router.push(`/${id_ub}/fotoDalamToko`);
+          router.push(`/${id_ul}/emailOtpLender`);
+        } else if (responseApi1.message === "doeku") {
+          router.push(`/${id_ul}/emailOtpLender`);
         } else {
           responseApi1.message = "";
-          Alert.alert(
-            "gagal",
-            "ada maintenance pada server coba lagi beberapa saat kemudian"
-          );
+          Alert.alert("gagal", "email anda telah terdaftar");
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+  }, [responseApi1, router, id_ul, email, password, rePassword]);
 
   return (
     <View style={styles.wraperSection}>
@@ -113,54 +132,37 @@ export default function DataDarurat() {
             <Text style={styles.normalText}>
               Pastikan semua data di isi dengan benar :
             </Text>
-            <Text style={styles.headerText}>Data Kontak Darurat :</Text>
-            <Text style={styles.labelText}>Nama Kontak Darurat*</Text>
+            <Text style={styles.headerText}>Data Akun :</Text>
+            <Text style={styles.labelText}>E-mail*</Text>
             <TextInput
               keyboardType="default"
               inputMode="text"
               style={styles.inputStyle}
-              onEndEditing={getName}
+              onChange={getEmail}
             />
-            <Text style={styles.labelText}>Hubungan Kontak Darurat*</Text>
-            <Picker
-              selectedValue={hubungan}
-              onValueChange={selectHubungan}
-              style={styles.pickerStyle}
-            >
-              <Picker.Item label={"ayah"} value={"ayah"} key={"ayah"} />
-              <Picker.Item label={"ibu"} value={"ibu"} key={"ibu"} />
-              <Picker.Item label={"paman"} value={"paman"} key={"paman"} />
-              <Picker.Item label={"tante"} value={"tante"} key={"tante"} />
-              <Picker.Item label={"kakak"} value={"kakak"} key={"kakak"} />
-              <Picker.Item label={"adik"} value={"adik"} key={"adik"} />
-              <Picker.Item label={"atasan"} value={"atasan"} key={"atasan"} />
-              <Picker.Item label={"suami"} value={"suami"} key={"suami"} />
-              <Picker.Item label={"istri"} value={"istri"} key={"istri"} />
-            </Picker>
-            <Text style={styles.labelText}>
-              Nomor Handphone Kontak Darurat*
-            </Text>
-            <TextInput
-              keyboardType="numeric"
-              inputMode="numeric"
-              placeholder="contoh: 08xxxxxxxx"
-              style={styles.inputStyle}
-              onEndEditing={getHandphone}
-            />
-            <Text style={styles.labelText}>Alamat Kontak Darurat*</Text>
+            <Text style={styles.labelText}>Password*</Text>
             <TextInput
               keyboardType="default"
               inputMode="text"
-              placeholder="contoh: jln. kemerdekaan B1/01"
               style={styles.inputStyle}
-              onEndEditing={getAddress}
+              secureTextEntry
+              onChange={getPassword}
+            />
+            <Text style={styles.labelText}>Re-type Password*</Text>
+            <TextInput
+              keyboardType="default"
+              inputMode="text"
+              style={styles.inputStyle}
+              secureTextEntry
+              onChange={getrepassword}
             />
           </ScrollView>
           <MyButton
             btnText="selanjutnya"
-            btnType="primary"
+            btnType={isDone && "primary"}
             btnWidth="100%"
             onPress={routeHandler}
+            btnDisable={!isDone}
           />
         </>
       )}
@@ -196,10 +198,11 @@ const styles = StyleSheet.create({
   },
   labelTextInfo: {
     fontFamily: "InterMedium",
-    fontSize: 10,
+    fontSize: 12,
     textAlign: "left",
     width: "100%",
-    color: "#bbb",
+    color: "#333",
+    marginBottom: 10,
   },
   inputStyle: {
     width: "100%",
@@ -216,15 +219,5 @@ const styles = StyleSheet.create({
     borderColor: "#bbb",
     borderWidth: 2,
     marginBottom: 15,
-  },
-  pickerStyle: {
-    width: "100%",
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
-    borderColor: "#bbb",
-    borderWidth: 2,
-    backgroundColor: "#f2f2f2",
-    fontSize: 16,
   },
 });

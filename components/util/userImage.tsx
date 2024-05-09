@@ -5,28 +5,28 @@ export default function UserImage({
   foto,
   gender,
 }: {
-  foto: string;
-  gender: string;
+  foto: string | null;
+  gender: string | null;
 }) {
   return foto ? (
     <Image
-      //   source={{
-      //     uri: `${process.env.EXPO_PUBLIC_SERVICE_J1}/account/default/${foto}`,
-      //   }}
+      source={{
+        uri: `${process.env.EXPO_PUBLIC_BASE_URL}:50010/account/default/${foto}`,
+      }}
       style={styles.fotoDashboard}
     />
   ) : gender === "pria" ? (
     <Image
-      //   source={{
-      //     uri: `${process.env.EXPO_PUBLIC_SERVICE_J1}/account/default/pria.png`,
-      //   }}
+      source={{
+        uri: `${process.env.EXPO_PUBLIC_BASE_URL}:50010/account/default/pria.png`,
+      }}
       style={styles.fotoDashboard}
     />
   ) : gender === "perempuan" ? (
     <Image
-      //   source={{
-      //     uri: `${process.env.EXPO_PUBLIC_SERVICE_J1}/account/default/perempuan.png`,
-      //   }}
+      source={{
+        uri: `${process.env.EXPO_PUBLIC_BASE_URL}:50010/account/default/perempuan.png`,
+      }}
       style={styles.fotoDashboard}
     />
   ) : (

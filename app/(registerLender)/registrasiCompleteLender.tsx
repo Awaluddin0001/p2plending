@@ -4,11 +4,11 @@ import { StyleSheet, Text, View, Image } from "react-native";
 import MyButton from "@/components/util/myButton";
 import { color } from "@/constants/Colors";
 
-export default function RegistrasiComplete() {
+export default function RegistrasiCompleteLender() {
   const router = useRouter();
 
   const routerLogin = () => {
-    router.push(`/(loginBorrower)`);
+    router.push(`/(loginLender)`);
   };
 
   return (

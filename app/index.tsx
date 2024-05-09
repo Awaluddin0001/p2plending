@@ -1,10 +1,30 @@
-import { Link } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useCallback } from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
 
 import { color } from "@/constants/Colors";
 import { appDimension, appFontSize } from "@/constants/Sizes";
 
 export default function Index() {
+  const router = useRouter();
+  useFocusEffect(
+    useCallback(() => {
+      const session = async () => {
+        const token = await SecureStore.getItemAsync("token");
+        const id_ub = await SecureStore.getItemAsync("id_ub");
+        const id_ul = await SecureStore.getItemAsync("id_ul");
+
+        if (token && id_ub) {
+          router.replace(`/(appBorrower)/${id_ub}/home`);
+        }
+        if (token && id_ul) {
+          router.replace(`/(appLender)/${id_ul}/home`);
+        }
+      };
+      session();
+    }, [])
+  );
   return (
     <View style={styles.container}>
       <View style={styles.cardContainer}>
@@ -34,6 +54,15 @@ export default function Index() {
           </Link>
         </View>
       </View>
+      {/* <View>
+        <Link
+          href={{
+            pathname: "/(registerBorrower)/PAB27870/regTtd",
+          }}
+        >
+          go testing page
+        </Link>
+      </View> */}
       <View style={styles.logoContainer}>
         <View style={styles.wrapperLogo}>
           <Text style={styles.textLogoSupport}>

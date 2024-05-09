@@ -7,25 +7,37 @@ import {
   Image,
   TextInput,
   Pressable,
-  ActivityIndicator,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
+import Countdown from "@/components/util/countDownFive";
 import MyButton from "@/components/util/myButton";
 import useApi from "@/components/util/useApi";
 import { color } from "@/constants/Colors";
 
-export default function PinVerification() {
-  const [valueOTP, setValueOTP] = useState(" ");
-  const [pin, setPin] = useState("");
-  const [isDone, setIsdone] = useState(false);
+export default function PhoneOtpLender() {
+  const router = useRouter();
+  const [valueOTP, setValueOTP] = useState("");
+  const [code, setCode] = useState("");
   const otpRef = useRef<TextInput>(null);
-  const { id_ub } = useLocalSearchParams();
+  const { id_ul } = useLocalSearchParams();
+
+  const [isDone, setIsdone] = useState(false);
+  const [isResend, setIsresend] = useState(true);
+  const initialTime = 5 * 60; // 5 minutes in seconds
+  const [time, setTime] = useState(initialTime);
 
   const {
     loading: loadingApi1,
     resp: responseApi1,
     fetchData: fetchDataApi1,
+  } = useApi<any>();
+
+  const {
+    loading: loadingApi2,
+    resp: responseApi2,
+    fetchData: fetchDataApi2,
   } = useApi<any>();
 
   function convertToFixedLengthArray(str: string) {
@@ -37,18 +49,16 @@ export default function PinVerification() {
 
   const otpLength = convertToFixedLengthArray(valueOTP);
 
-  const router = useRouter();
-
   const inputOTP = (e: string) => {
     setValueOTP(e);
   };
 
-  const getPin = ({
+  const getCode = ({
     nativeEvent: { text },
   }: {
     nativeEvent: { text: string };
   }) => {
-    setPin(text);
+    setCode(text);
     if (text.length === 6) {
       setIsdone(true);
     } else {
@@ -62,20 +72,33 @@ export default function PinVerification() {
     }
   };
 
+  const resendotp = async () => {
+    if (time === 0) {
+      await fetchDataApi2(
+        "get",
+        `${process.env.EXPO_PUBLIC_BASE_URL}`,
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+        "/resendOtpphone",
+        undefined,
+        { id_ul }
+      );
+    }
+  };
+
   const routeHandler = async () => {
-    if (pin) {
-      const body = {
-        id_ub,
-        pin,
+    if (code) {
+      const param = {
+        id_ul,
+        otp: code,
       };
 
       await fetchDataApi1(
         "get",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
-        `${process.env.EXPO_PUBLIC_SERVICE_A1}`,
-        "/authPin",
+        `${process.env.EXPO_PUBLIC_SERVICE_B1}`,
+        "/otpPhone",
         undefined,
-        body
+        param
       );
     }
   };
@@ -83,24 +106,45 @@ export default function PinVerification() {
   useEffect(() => {
     if (responseApi1) {
       if (responseApi1.message) {
-        if (responseApi1.message === "auth") {
-          router.push(`/${id_ub}/dataPribadi`);
-        } else if (responseApi1.message === "wrong") {
+        if (responseApi1.message === "wrong") {
           responseApi1.message = "";
-          Alert.alert("Salah", "pin yang anda masukkan tidak sesuai");
+          Alert.alert("Salah", "Kode yang anda masukkan tidak sesuai");
+        } else if (responseApi1.message === "auth") {
+          router.push(`/${id_ul}/emailRegistrationLender`);
+        } else {
+          responseApi1.message = "";
+          Alert.alert(
+            "error",
+            "Server dalam keadaan Maintenance, balik lagi nanti"
+          );
         }
       }
     }
-  }, [responseApi1, id_ub, router]);
+    if (responseApi2) {
+      if (responseApi2.message) {
+        if (responseApi2.message === "update") {
+          setTime(initialTime);
+          setIsresend(false);
+          responseApi2.message = "";
+          Alert.alert("Terkirim", "kode yang baru telah terkirim");
+        } else if (responseApi2.message === "failed") {
+          Alert.alert("Gagal Terkirim", "kode yang baru gagal terkirim");
+        }
+      }
+    }
+  }, [responseApi1, responseApi2, router, initialTime, id_ul]);
 
   return (
     <View style={styles.wraperSendOtp}>
-      {loadingApi1 ? (
+      {loadingApi1 || loadingApi2 ? (
         <ActivityIndicator size="large" color={color.primary} />
       ) : (
         <>
           <Image source={require("@/assets/images/terimaOtp.png")} />
-          <Text style={styles.headertext}>Input Ulang Pin Anda</Text>
+          <Text style={styles.headertext}>Verifikasi OTP</Text>
+          <Text style={styles.normalText}>
+            Masukkan Kode OTP yang anda terima melalui sms
+          </Text>
           <Pressable
             onPress={userPressOTP}
             style={{
@@ -123,9 +167,25 @@ export default function PinVerification() {
               keyboardType="numeric"
               inputMode="numeric"
               onChangeText={inputOTP}
-              onChange={getPin}
+              onChange={getCode}
               ref={otpRef}
             />
+          </View>
+          <Countdown time={time} setTime={setTime} />
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+            }}
+          >
+            <Text style={styles.normalText}>Tidak Menerima OTP?</Text>
+            {isResend && (
+              <Pressable onPress={() => resendotp()}>
+                <Text style={{ color: color.primary }}>RESEND</Text>
+              </Pressable>
+            )}
           </View>
 
           <MyButton
@@ -133,7 +193,7 @@ export default function PinVerification() {
             btnWidth="60%"
             onPress={routeHandler}
             btnText="Verifikasi"
-            // btnDisable={!isDone}
+            btnDisable={!isDone}
           />
         </>
       )}
