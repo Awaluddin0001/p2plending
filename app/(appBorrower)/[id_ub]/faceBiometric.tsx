@@ -63,7 +63,7 @@ export default function FaceBiometric() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       cameraType: ImagePicker.CameraType.back,
       // aspect: [4, 3],
-      quality: 0.6,
+      quality: 0.55,
     });
 
     const encrypFilename = id_ub

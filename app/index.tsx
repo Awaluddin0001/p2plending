@@ -1,6 +1,6 @@
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
 
 import { color } from "@/constants/Colors";
@@ -54,15 +54,15 @@ export default function Index() {
           </Link>
         </View>
       </View>
-      {/* <View>
+      <View>
         <Link
           href={{
-            pathname: "/(registerBorrower)/PAB27870/regTtd",
+            pathname: "/(registerBorrower)/PAB00001/fotoLuarToko",
           }}
         >
           go testing page
         </Link>
-      </View> */}
+      </View>
       <View style={styles.logoContainer}>
         <View style={styles.wrapperLogo}>
           <Text style={styles.textLogoSupport}>

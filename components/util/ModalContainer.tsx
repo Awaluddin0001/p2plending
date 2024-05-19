@@ -59,8 +59,8 @@ export default function ModalContainer({
         <Text>2.</Text>
         <View>
           <Text>Nama : {cd.name}</Text>
-          <Text>Alamat : {adrnik.address}</Text>
-          <Text>No ktp : {adrnik.nik}</Text>
+          <Text>Alamat : {adrnik.data.address}</Text>
+          <Text>No ktp : {adrnik.data.nik}</Text>
           <Text>Email : {cd.email}</Text>
           <Text>No hp : 0{cd.phone}</Text>
           <Text>Nomor ID Peminjam : {cd.id_ub}</Text>

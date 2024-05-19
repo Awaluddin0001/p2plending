@@ -1,6 +1,6 @@
 import Checkbox from "expo-checkbox";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 
 import MyButton from "@/components/util/myButton";
@@ -17,9 +17,6 @@ export default function TermCond() {
 
   const routeHandler = () => {
     router.push("/phoneNumber");
-    // router.push(
-    //   `${process.env.EXPO_PUBLIC_ROUTE_BORROWER_REGISTER}/PAB27870/fotoDalamtoko`
-    // );
   };
 
   const endScroll = ({
@@ -50,6 +47,7 @@ export default function TermCond() {
             setIsDisable(false);
           }
         }}
+        testID="scroll-view"
         scrollEventThrottle={400}
       >
         <View style={styles.wrapperText}>
@@ -1147,12 +1145,14 @@ export default function TermCond() {
           value={isChecked}
           onValueChange={setCheckedHandler}
           disabled={isDisable}
+          testID="checkbox"
         />
         <Text style={{ color: isDisable ? "#aaa" : "#000" }}>
           Saya mengerti dan menyetujui syarat dan ketentuan
         </Text>
       </View>
       <MyButton
+        testID="button"
         btnText="selanjutnya"
         btnType={isDisable || !isChecked ? "secondary" : "primary"}
         btnWidth="110%"

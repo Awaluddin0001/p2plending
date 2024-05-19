@@ -74,6 +74,7 @@ export default function KtpVerif() {
         type: "image/jpeg",
       };
       setPickedImage(image.assets[0].uri);
+
       uploadImage(ImageData, "/ktp");
     }
   }

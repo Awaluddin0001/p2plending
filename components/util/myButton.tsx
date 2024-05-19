@@ -10,6 +10,7 @@ interface MyButtonProps {
   btnText: string;
   btnFont?: string;
   btnDisable?: boolean;
+  testID?: string;
 }
 
 const MyButton: React.FC<MyButtonProps> = ({
@@ -19,21 +20,26 @@ const MyButton: React.FC<MyButtonProps> = ({
   btnText,
   btnFont = "InterMedium",
   btnDisable = false,
+  testID,
 }) => {
   return (
     <Pressable
       onPress={onPress}
-      style={{
-        ...styles.myButton,
-        backgroundColor:
-          btnType === "primary"
-            ? color.primary
-            : btnType === "secondary"
-              ? color.secondary
-              : "#ddd",
-        width: btnWidth, // Pass btnWidth directly without string conversion
-      }}
+      style={({ pressed }) => [
+        styles.myButton,
+        {
+          backgroundColor:
+            btnType === "primary"
+              ? color.primary
+              : btnType === "secondary"
+                ? color.secondary
+                : "#ddd",
+          width: btnWidth,
+          opacity: pressed ? 0.7 : 1,
+        },
+      ]}
       disabled={btnDisable}
+      testID={testID}
     >
       <Text
         style={{

@@ -26,6 +26,9 @@
     },
     "production": {
       "releaseChannel": "production",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
         "EXPO_PUBLIC_BASE_URL": "https://api.doeku.id",
         "EXPO_PUBLIC_SERVICE_A1": "/api/borrower",

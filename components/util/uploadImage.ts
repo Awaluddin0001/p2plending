@@ -26,10 +26,10 @@ export const useImageUploader = <T>() => {
           },
         }
       );
-
       setIsUpload(true);
       setResp(response.data);
     } catch (error) {
+      console.log(error);
       setIsUpload(false);
       console.error("Error uploading image", error);
     } finally {

@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   View,

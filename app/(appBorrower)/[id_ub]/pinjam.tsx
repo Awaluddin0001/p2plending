@@ -1,7 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";
-import { useRouter, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { DateTime } from "luxon";
 import { useState, useEffect, useCallback } from "react";
@@ -9,7 +9,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
   TextInput,
   Alert,
   ScrollView,
@@ -29,12 +28,9 @@ import { color } from "@/constants/Colors";
 
 export default function Pinjam() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalvisible] = useState(false);
   const [modalPin, setModalpin] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [sign, setSign] = useState<any>();
-  const [docOther, setDocOther] = useState<any>();
 
   const [selectedDays, setSelectedDays] = useState("61");
   const [selectedTujuan, setSelectedTujuan] = useState(
@@ -54,7 +50,6 @@ export default function Pinjam() {
   const [bulan, setBulan] = useState<string>("");
   const [tahun, setTahun] = useState<string>("");
   const [tglCom, setTglcom] = useState<string>("");
-  const [adrNik, setAdrnik] = useState<any>();
   const [bDatesign, setBdatesign] = useState<string>("");
   const [userData, setUserData] = useState<{
     token: string | null;
@@ -81,66 +76,74 @@ export default function Pinjam() {
     resp: responseApi1,
     fetchData: fetchDataApi1,
   } = useApi<any>();
+
   const {
     loading: loadingApi2,
     resp: responseApi2,
     fetchData: fetchDataApi2,
   } = useApi<any>();
+
   const {
     loading: loadingApi3,
     resp: responseApi3,
     fetchData: fetchDataApi3,
   } = useApi<any>();
+
   const {
     loading: loadingApi4,
     resp: responseApi4,
     fetchData: fetchDataApi4,
   } = useApi<any>();
+
   const {
     loading: loadingApi5,
     resp: responseApi5,
     fetchData: fetchDataApi5,
   } = useApi<any>();
 
+  useEffect(() => {
+    const session = async () => {
+      const email = await SecureStore.getItemAsync("email");
+      const token = await SecureStore.getItemAsync("token");
+      const business = await SecureStore.getItemAsync("business");
+      const id_ub = await SecureStore.getItemAsync("id_ub");
+      const name = await SecureStore.getItemAsync("name");
+      const phone = await SecureStore.getItemAsync("phone");
+      const gender = await SecureStore.getItemAsync("gender");
+      const foto = await SecureStore.getItemAsync("foto");
+      setUserData((fd) => {
+        return {
+          ...fd,
+          token,
+          business,
+          name,
+          id_ub,
+          email,
+          foto,
+          phone,
+          gender,
+        };
+      });
+    };
+    session();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      const session = async () => {
-        const email = await SecureStore.getItemAsync("email");
-        const token = await SecureStore.getItemAsync("token");
-        const business = await SecureStore.getItemAsync("business");
-        const id_ub = await SecureStore.getItemAsync("id_ub");
-        const name = await SecureStore.getItemAsync("name");
-        const phone = await SecureStore.getItemAsync("phone");
-        const gender = await SecureStore.getItemAsync("gender");
-        const foto = await SecureStore.getItemAsync("foto");
-        setUserData((fd) => {
-          return {
-            ...fd,
-            token,
-            business,
-            name,
-            id_ub,
-            email,
-            foto,
-            phone,
-            gender,
-          };
-        });
+      const tabs = async () => {
+        if (userData.id_ub) {
+          checkSign();
+          checkKtp();
+          checkadrnik();
+          // checkStatus();
+        }
       };
-      session();
-      checkSign();
-      checkKtp();
-      checkadrnik();
-      checkStatus();
-    }, [])
+      tabs();
+    }, [userData])
   );
 
   const checkStatus = async () => {
     if (userData.id_ub) {
-      // const headers = {
-      //   Authorization: `Bearer ${userData.token}`,
-      // };
-      // console.log("yes");
       await fetchDataApi5(
         "get",
         `${process.env.EXPO_PUBLIC_BASE_URL}`,
@@ -156,10 +159,6 @@ export default function Pinjam() {
 
   useEffect(() => {
     redirectJwt();
-    checkSign();
-    checkKtp();
-    checkadrnik();
-
     // Create a DateTime object with UTC+8 offset (Asia/Singapore)
     const dt = DateTime.now().setZone("Asia/Singapore");
 
@@ -230,25 +229,8 @@ export default function Pinjam() {
           id_ub: userData.id_ub,
         }
       );
-      setSign(responseApi1);
     }
   };
-
-  useEffect(() => {
-    if (!sign) {
-      checkSign();
-    }
-    if (!docOther) {
-      checkKtp();
-    }
-    if (!adrNik) {
-      checkadrnik();
-    }
-    if (!responseApi5) {
-      checkStatus();
-    }
-    console.log(responseApi5);
-  }, [responseApi2, responseApi1, responseApi3, responseApi5]);
 
   const checkKtp = async () => {
     if (userData.id_ub) {
@@ -263,8 +245,6 @@ export default function Pinjam() {
         undefined,
         body
       );
-
-      setDocOther(responseApi2);
     }
   };
 
@@ -281,7 +261,6 @@ export default function Pinjam() {
         undefined,
         body
       );
-      setAdrnik(responseApi3);
     }
   };
 
@@ -296,12 +275,12 @@ export default function Pinjam() {
       bunga,
       biayaLayanan,
       id_ub: userData.id_ub,
-      address: adrNik?.data.address ? adrNik?.data.address : "",
-      nik: adrNik?.data.nik ? adrNik?.data.nik : "",
+      address: responseApi3?.data.address,
+      nik: responseApi3?.data.nik,
       phone: userData.phone,
       email: userData.email,
       name: userData.name,
-      sign: sign.data.sign,
+      sign: responseApi1.data.sign,
       goal: selectedTujuan,
       amountuse: selectedManfaat,
     };
@@ -312,13 +291,13 @@ export default function Pinjam() {
       "/newlending",
       body
     );
+    console.log(responseApi4);
     if (responseApi4.document === 200 && responseApi4.saverow === "success") {
       Alert.alert(
         "Selamat Pengajuan Anda berhasil",
         "Tim kami akan memverifikasi data anda"
       );
       router.replace(`/`);
-      setLoading(false);
     }
   };
 
@@ -334,10 +313,7 @@ export default function Pinjam() {
   };
 
   const setCheckedHandler = () => {
-    checkSign();
-    checkKtp();
-    checkadrnik();
-    if (!sign?.data.sign) {
+    if (!responseApi1.data.sign) {
       Alert.alert(
         "Anda Belum Punya Tanda Tangan",
         "Silahkan tanda tangan terlebih dahulu sebelum melakukan pengajuan pinjaman, tanda tangan diperlukan untuk perjanjian dokumen, apa anda setuju ?",
@@ -354,7 +330,7 @@ export default function Pinjam() {
       setIsChecked(false);
       return;
     } else {
-      if (!docOther?.data.ktp || !docOther?.data.selfie) {
+      if (!responseApi2?.data.ktp || !responseApi2?.data.selfie) {
         Alert.alert(
           "Belum melakukan scan wajah dan ktp",
           "Saat pertama kali melakukan pengajuan pinjaman, kami perlu memverifikasi wajah dan ktp anda, apa anda setuju ?",
@@ -414,8 +390,15 @@ export default function Pinjam() {
 
   return (
     <View style={styles.wraperSendOtp}>
-      {responseApi5 !== null ? (
-        responseApi5.some((val: any) => val.status === "menunggu") ? (
+      {loadingApi1 ||
+        loadingApi2 ||
+        loadingApi3 ||
+        loadingApi4 ||
+        (loadingApi5 ? (
+          <ActivityIndicator size="large" color={color.primary} />
+        ) : responseApi5 &&
+          responseApi5.length > 0 &&
+          responseApi5.some((val: any) => val.status === "menunggu") ? (
           <View
             style={{
               alignItems: "center",
@@ -577,11 +560,7 @@ export default function Pinjam() {
                 </View>
               </View>
             </ScrollView>
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-            >
+            <Modal animationType="slide" visible={modalVisible}>
               <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                   <View
@@ -630,7 +609,7 @@ export default function Pinjam() {
                     style={{ width: "95%", paddingTop: 15 }}
                   >
                     <ModalContainer
-                      sign={sign?.data.sign}
+                      sign={responseApi1?.data.sign}
                       hari={hari}
                       bulan={bulan}
                       tahun={tahun}
@@ -641,13 +620,13 @@ export default function Pinjam() {
                       angsuran3={angsuran3}
                       tenor={selectedDays}
                       bunga={bunga}
-                      adrnik={adrNik}
+                      adrnik={responseApi3}
                     />
                   </ScrollView>
                 </View>
               </View>
             </Modal>
-            <Modal animationType="slide" transparent={true} visible={modalPin}>
+            <Modal animationType="slide" visible={modalPin}>
               <View style={styles.modalContainer}>
                 <InputPin
                   setIschecked={setIsChecked}
@@ -680,7 +659,7 @@ export default function Pinjam() {
                   </Pressable>
                 </View>
               </View>
-              {loading ? (
+              {loadingApi4 ? (
                 <ActivityIndicator size="large" color={color.primary} />
               ) : (
                 <MyButton
@@ -693,273 +672,7 @@ export default function Pinjam() {
               )}
             </View>
           </>
-        )
-      ) : (
-        <>
-          <View style={styles.headDashboard}>
-            <View style={styles.userInfoDashboard}>
-              <UserImage foto={userData.foto} gender={userData.gender} />
-              <View>
-                <Text style={styles.nameDashboard}>{userData.name}</Text>
-                <Text style={styles.usahaDashboard}>{userData.business}</Text>
-              </View>
-            </View>
-            <FontAwesome name="bell" size={24} color="white" />
-          </View>
-          <View style={styles.inputBody}>
-            <View style={styles.inputSection}>
-              <View style={styles.jumlahDanaInput}>
-                <Text style={styles.jumlahDanaText}>
-                  Jumlah Dana :{" "}
-                  {amountPinjaman
-                    ? toRupiah(amountPinjaman, { formal: false })
-                    : toRupiah(0, { formal: false })}
-                </Text>
-                <TextInput
-                  keyboardType="numeric"
-                  inputMode="numeric"
-                  placeholder="input jumlah pinjaman"
-                  placeholderTextColor={color.primary}
-                  onEndEditing={amountWhenDone}
-                  style={styles.inputAmount}
-                />
-              </View>
-              <View style={styles.durasiPinjamanInput}>
-                <Text>Durasi Pinjaman</Text>
-                <Picker selectedValue={selectedDays} onValueChange={pickerDays}>
-                  <Picker.Item label="61 Hari" value="61" />
-                  <Picker.Item label="75 Hari" value="75" />
-                  <Picker.Item label="90 Hari" value="90" />
-                </Picker>
-              </View>
-            </View>
-          </View>
-          <Text
-            style={{
-              fontFamily: "InterMedium",
-              alignSelf: "flex-start",
-              marginLeft: 20,
-              marginBottom: 10,
-            }}
-          >
-            Summary :
-          </Text>
-          <ScrollView style={styles.scrollviewSect}>
-            <View style={styles.bungaDanLayanan}>
-              <View style={styles.cardAmount}>
-                <Text>
-                  Bunga Total ({selectedDays} hari x {bungaValue}%)
-                </Text>
-                <Text style={styles.amountText}>
-                  {toRupiah(bunga, { formal: false })}
-                </Text>
-              </View>
-              <View style={styles.cardAmount}>
-                <Text>Biaya Layanan</Text>
-                <Text style={styles.amountText}>
-                  {toRupiah(biayaLayanan, { formal: false })}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.angsuranDetails}>
-              {Number(selectedDays) === 61 ? (
-                <>
-                  <View style={styles.cardAmount}>
-                    <Text>Angsuran 1 + Bunga</Text>
-                    <Text style={styles.amountText}>
-                      {toRupiah(angsuran1, { formal: false })}
-                    </Text>
-                  </View>
-                  <View style={styles.cardAmount}>
-                    <Text>Angsuran 2 + Bunga</Text>
-                    <Text style={styles.amountText}>
-                      {toRupiah(angsuran2, { formal: false })}
-                    </Text>
-                  </View>
-                </>
-              ) : (
-                <>
-                  <View style={styles.cardAmount}>
-                    <Text>Angsuran 1 + Bunga</Text>
-                    <Text style={styles.amountText}>
-                      {toRupiah(angsuran1, { formal: false })}
-                    </Text>
-                  </View>
-                  <View style={styles.cardAmount}>
-                    <Text>Angsuran 2 + Bunga</Text>
-                    <Text style={styles.amountText}>
-                      {toRupiah(angsuran2, { formal: false })}
-                    </Text>
-                  </View>
-                  <View style={styles.cardAmount}>
-                    <Text>Angsuran 3 + Bunga</Text>
-                    <Text style={styles.amountText}>
-                      {toRupiah(angsuran3, { formal: false })}
-                    </Text>
-                  </View>
-                </>
-              )}
-            </View>
-            <View style={styles.dateLine}>
-              <View style={styles.cardAmount}>
-                <Text>Jumlah Yang Diterima</Text>
-                <Text style={styles.amountText}>
-                  {toRupiah(amountPinjaman - biayaLayanan, { formal: false })}
-                </Text>
-              </View>
-              <View style={styles.cardAmount}>
-                <Text>Jatuh Tempo</Text>
-                <Text style={styles.amountText}>
-                  {selectedDays} Hari setelah di setujui
-                </Text>
-              </View>
-            </View>
-            <View style={styles.manfaatInput}>
-              <View style={styles.manfaatPinjamanInput}>
-                <Text>Tujuan Penggunaan Dana</Text>
-                <Picker
-                  selectedValue={selectedTujuan}
-                  onValueChange={pickTujuan}
-                >
-                  <Picker.Item
-                    label="Peminjaman UMKM Davestpay"
-                    value="Peminjaman UMKM Davestpay"
-                  />
-                </Picker>
-              </View>
-            </View>
-            <View style={{ ...styles.manfaatInput, marginBottom: 60 }}>
-              <View style={styles.manfaatPinjamanInput}>
-                <Text>Manfaat Pendanaan</Text>
-                <Picker
-                  selectedValue={selectedManfaat}
-                  onValueChange={pickManfaat}
-                >
-                  <Picker.Item
-                    label="Penyaluran Dana Ke UMKM"
-                    value="Penyaluran Dana Ke UMKM"
-                  />
-                </Picker>
-              </View>
-            </View>
-          </ScrollView>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <View
-                  style={{
-                    width: "100%",
-                    alignItems: "flex-end",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Pressable
-                    onPress={() => {
-                      setModalvisible(false);
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "InterBold",
-                        color: color.secondary,
-                        fontSize: 16,
-                      }}
-                    >
-                      Tidak Setuju
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => {
-                      setModalvisible(false);
-                      setModalpin(true);
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "InterBold",
-                        color: color.primary,
-                        fontSize: 16,
-                      }}
-                    >
-                      Setuju
-                    </Text>
-                  </Pressable>
-                </View>
-                <ScrollView
-                  showsHorizontalScrollIndicator={false}
-                  showsVerticalScrollIndicator={false}
-                  style={{ width: "95%", paddingTop: 15 }}
-                >
-                  <ModalContainer
-                    sign={sign?.data.sign}
-                    hari={hari}
-                    bulan={bulan}
-                    tahun={tahun}
-                    cd={userData}
-                    amount={amountPinjaman}
-                    angsuran1={angsuran1}
-                    angsuran2={angsuran2}
-                    angsuran3={angsuran3}
-                    tenor={selectedDays}
-                    bunga={bunga}
-                    adrnik={adrNik}
-                  />
-                </ScrollView>
-              </View>
-            </View>
-          </Modal>
-          <Modal animationType="slide" transparent={true} visible={modalPin}>
-            <View style={styles.modalContainer}>
-              <InputPin
-                setIschecked={setIsChecked}
-                id_ub={userData.id_ub as string}
-                setModalpin={setModalpin}
-              />
-            </View>
-          </Modal>
-          <View
-            style={{
-              marginBottom: 10,
-              width: "50%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <View style={styles.wrapperCheckbox}>
-              <Checkbox value={isChecked} onValueChange={setCheckedHandler} />
-              <View style={styles.textAgrement}>
-                <Text style={{ fontSize: 11 }}>Saya menyetujui </Text>
-                <Pressable>
-                  <Text
-                    style={{
-                      color: "blue",
-                      fontSize: 11,
-                    }}
-                  >
-                    syarat dan ketentuan dengan pemberi dana
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-            {loading ? (
-              <ActivityIndicator size="large" color={color.primary} />
-            ) : (
-              <MyButton
-                btnText="Pinjam"
-                btnWidth="90%"
-                btnType={isChecked ? "primary" : "secondary"}
-                onPress={verifyPinjam}
-                btnDisable={!isChecked}
-              />
-            )}
-          </View>
-        </>
-      )}
+        ))}
     </View>
   );
 }
